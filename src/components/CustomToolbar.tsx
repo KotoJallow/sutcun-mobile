@@ -1,28 +1,51 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
 interface CustomToolbarProps {
   title: string;
   showCart?: boolean;
+  showBack?: boolean;
   onCartPress?: () => void;
+  onBackPress?: () => void;
 }
 
-const CustomToolbar = ({ title, showCart = false, onCartPress }: CustomToolbarProps) => {
+const CustomToolbar = ({ 
+  title, 
+  showCart = false, 
+  showBack = false,
+  onCartPress,
+  onBackPress 
+}: CustomToolbarProps) => {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.toolbar}>
-        <Text style={styles.title}>{title}</Text>
-        {showCart && (
-          <TouchableOpacity style={styles.cartContainer} onPress={onCartPress}>
-            <Icon name="shopping-cart" size={24} color="#fff" />
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>3</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      </View>
+    <View style={styles.toolbar}>
+      {showBack && (
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={onBackPress}
+        >
+          <MaterialIcons 
+            name="arrow-back" 
+            size={24} 
+            color={Colors.white} 
+          />
+        </TouchableOpacity>
+      )}
+      <Text style={[
+        styles.title,
+        showBack && styles.titleWithBack
+      ]}>{title}</Text>
+      {showCart && (
+        <TouchableOpacity style={styles.cartContainer} onPress={onCartPress}>
+          <MaterialIcons name="shopping-cart" size={24} color={Colors.white} />
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>3</Text>
+          </View>
+        </TouchableOpacity>
+      )}
+    </View>
     </SafeAreaView>
   );
 };
@@ -48,6 +71,14 @@ const styles = StyleSheet.create({
     right: 0,
     textAlign: 'center',
     zIndex: 0,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 16,
+    zIndex: 1,
+  },
+  titleWithBack: {
+    marginLeft: 32, // Give some space for back button
   },
   cartContainer: {
     position: 'relative',

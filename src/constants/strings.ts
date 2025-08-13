@@ -3,6 +3,7 @@ export default {
   homeTitle: 'Ana Sayfa',
   ordersTitle: 'Siparişlerim',
   accountTitle: 'Hesabım',
+  addressManagement: 'Adres Yönetimi',
 
   // Button Texts
   addToCart: 'Sepete Ekle',

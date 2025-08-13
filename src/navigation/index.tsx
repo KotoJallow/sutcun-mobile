@@ -6,6 +6,8 @@ import RegisterScreen from '../screens/RegisterScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OTPScreen from '../screens/OTPScreen';
+import AddressManagementScreen from '../screens/AddressManagementScreen';
+import colors from '../constants/colors';
 
 
 
@@ -20,6 +22,13 @@ export default function RootNavigator() {
       <Stack.Screen name="Welcome" component={WelcomeScreen} /> 
       <Stack.Screen name="OTP" component={OTPScreen} />
       <Stack.Screen name="Main" component={BottomTabs} />
+      <Stack.Screen 
+        name="AddressManagement" 
+        component={AddressManagementScreen}
+        options={{ 
+          headerShown: false
+        }}
+      />
     </Stack.Navigator>
   );
 }

@@ -1,10 +1,23 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import AddressBar from '../components/AddressBar';
 
-export default function HomeScreen() {
+const HomeScreen= ({ navigation }: any) => {
+
+  const handleAddressPress = () => {
+    navigation.navigate('AddressManagement');
+  };
+
   return (
-    <View className="flex-1 justify-center items-center">
-      <Text className="text-xl font-bold">Home Screen</Text>
+    <View style={{ flex: 1 }}>
+      <AddressBar 
+        address="Kadıköy, Caferağa"
+        onPress={handleAddressPress}
+      />
+      {/* Diğer içerikler */}
     </View>
   );
 }
+
+export default HomeScreen;
