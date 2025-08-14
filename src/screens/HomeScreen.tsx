@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import AddressBar from '../components/AddressBar';
 import ImageSlider from '../components/ImageSlider';
+import CategoryList from '../components/CategoryList';
 
 const HomeScreen = ({ navigation }: any) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('Dairy');
+  
   const sliderImages = [
     'https://picsum.photos/200/300',
     'https://picsum.photos/200/300',
@@ -16,8 +18,12 @@ const HomeScreen = ({ navigation }: any) => {
   };
 
   const handleSliderPress = () => {
-    // Handle slider press
     console.log('Slider pressed');
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    console.log('Selected category:', category);
   };
 
   return (
@@ -29,6 +35,10 @@ const HomeScreen = ({ navigation }: any) => {
       <ImageSlider 
         images={sliderImages}
         onPress={handleSliderPress}
+      />
+      <CategoryList
+        selectedCategory={selectedCategory}
+        onSelectCategory={handleCategorySelect}
       />
     </View>
   );
