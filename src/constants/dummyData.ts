@@ -4,13 +4,12 @@ export interface Product {
   category_id: number;
   category_name: string;
   category_icon: string;
-  image: string; // Add image property
+  image: string;
   district_name: string;
   neighborhood_name: string;
   price: number;
   stock_quantity: number;
-  unit_amount: number;
-  unit_type: string;
+  unit: string; // Birleştirilmiş property
   created_at: string;
 }
 
@@ -26,8 +25,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 35.50,
     stock_quantity: 50,
-    unit_amount: 1.0,
-    unit_type: "Kg",
+    unit: "1 Kg",
     created_at: "2025-08-14 10:30:00"
   },
   {
@@ -41,8 +39,35 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 28.00,
     stock_quantity: 30,
-    unit_amount: 1.0,
-    unit_type: "Kg",
+    unit: "1 Kg",
+    created_at: "2025-08-14 10:35:00"
+  },
+  {
+    product_id: 11,
+    product_name: "Elma",
+    category_id: 1,
+    category_name: "Organik Meyve",
+    category_icon: "nutrition-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Beylikdüzü",
+    neighborhood_name: "Kavaklı",
+    price: 35.50,
+    stock_quantity: 50,
+    unit: "1 Kg",
+    created_at: "2025-08-14 10:30:00"
+  },
+  {
+    product_id: 12,
+    product_name: "Armut",
+    category_id: 1,
+    category_name: "Organik Meyve",
+    category_icon: "nutrition-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Beylikdüzü",
+    neighborhood_name: "Kavaklı",
+    price: 28.00,
+    stock_quantity: 30,
+    unit: "1 Kg",
     created_at: "2025-08-14 10:35:00"
   },
   {
@@ -56,8 +81,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 15.00,
     stock_quantity: 100,
-    unit_amount: 1.0,
-    unit_type: "Kg",
+    unit: "1 Kg",
     created_at: "2025-08-14 10:40:00"
   },
   {
@@ -71,8 +95,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 18.50,
     stock_quantity: 80,
-    unit_amount: 1.0,
-    unit_type: "Kg",
+    unit: "1 Kg",
     created_at: "2025-08-14 10:45:00"
   },
   {
@@ -86,8 +109,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 20.00,
     stock_quantity: 60,
-    unit_amount: 1.0,
-    unit_type: "Lt",
+    unit: "1 Lt",
     created_at: "2025-08-14 10:50:00"
   },
   {
@@ -101,8 +123,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 45.00,
     stock_quantity: 25,
-    unit_amount: 500,
-    unit_type: "Gr",
+    unit: "500 Gr",
     created_at: "2025-08-14 10:55:00"
   },
   {
@@ -116,8 +137,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 90.00,
     stock_quantity: 40,
-    unit_amount: 1.0,
-    unit_type: "Kg",
+    unit: "1 Kg",
     created_at: "2025-08-14 11:00:00"
   },
   {
@@ -131,8 +151,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 55.00,
     stock_quantity: 70,
-    unit_amount: 1.0,
-    unit_type: "Kg",
+    unit: "1 Kg",
     created_at: "2025-08-14 11:05:00"
   },
   {
@@ -146,8 +165,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 25.00,
     stock_quantity: 100,
-    unit_amount: 1.0,
-    unit_type: "Lt",
+    unit: "1 Lt",
     created_at: "2025-08-14 11:10:00"
   },
   {
@@ -161,8 +179,7 @@ export const products: Product[] = [
     neighborhood_name: "Kavaklı",
     price: 30.00,
     stock_quantity: 90,
-    unit_amount: 1.0,
-    unit_type: "Lt",
+    unit: "1 Lt",
     created_at: "2025-08-14 11:15:00"
   }
 ];

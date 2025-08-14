@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import AddressBar from '../components/AddressBar';
 import ImageSlider from '../components/ImageSlider';
 import CategoryList from '../components/CategoryList';
+import ProductList from '../components/ProductList';
 
 const HomeScreen = ({ navigation }: any) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Dairy');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
   
   const sliderImages = [
     'https://picsum.photos/200/300',
@@ -21,27 +23,36 @@ const HomeScreen = ({ navigation }: any) => {
     console.log('Slider pressed');
   };
 
-  const handleCategorySelect = (category: string) => {
+  const handleCategorySelect = (category: string, id: number) => {
     setSelectedCategory(category);
-    console.log('Selected category:', category);
+    setSelectedCategoryId(id);
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <AddressBar 
         address="Kadıköy, Caferağa"
         onPress={handleAddressPress}
       />
-      <ImageSlider 
-        images={sliderImages}
-        onPress={handleSliderPress}
-      />
-      <CategoryList
-        selectedCategory={selectedCategory}
-        onSelectCategory={handleCategorySelect}
-      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ImageSlider 
+          images={sliderImages}
+          onPress={handleSliderPress}
+        />
+        <CategoryList
+          selectedCategory={selectedCategory}
+          onSelectCategory={handleCategorySelect}
+        />
+        <ProductList selectedCategoryId={selectedCategoryId} />
+      </ScrollView>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
 
 export default HomeScreen;
