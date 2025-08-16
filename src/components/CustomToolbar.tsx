@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Colors from '../constants/colors';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 interface CustomToolbarProps {
   title: string;
@@ -22,6 +24,10 @@ const CustomToolbar = ({
   onBackPress,
   onDeletePress
 }: CustomToolbarProps) => {
+
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.toolbar}>
@@ -47,7 +53,7 @@ const CustomToolbar = ({
             <TouchableOpacity style={styles.cartContainer} onPress={onCartPress}>
               <Icon name="shopping-cart" size={24} color={Colors.white} />
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>3</Text>
+                <Text style={styles.badgeText}>{totalItems}</Text>
               </View>
             </TouchableOpacity>
           )}
