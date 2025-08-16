@@ -1,35 +1,22 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
+import React from 'react';
+import { View, ScrollView, StyleSheet, Text, Alert } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import CustomToolbar from '../components/CustomToolbar';
 import CartItem from '../components/CartItem';
 import Colors from '../constants/colors';
+import { RootState } from '../redux/store';
+import { increment, decrement, clearCart, removeFromCart } from '../redux/cartSlice';
 
 const CartScreen = ({ navigation }: any) => {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      image: 'https://picsum.photos/80/80',
-      name: 'Fresh Milk',
-      price: 24.90,
-      quantity: 2,
-      unit: '1L, Bottle',
-    },
-  ]);
+  const dispatch = useDispatch();
+  const { items, total } = useSelector((state: RootState) => state.cart);
 
-  const handleIncrement = (id: number) => {
-    setItems(items.map(item => 
-      item.id === id 
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
-    ));
+  const handleIncrement = (productId: number) => {
+    dispatch(increment(productId));
   };
 
-  const handleDecrement = (id: number) => {
-    setItems(items.map(item => 
-      item.id === id && item.quantity > 1
-        ? { ...item, quantity: item.quantity - 1 }
-        : item
-    ));
+  const handleDecrement = (productId: number) => {
+    dispatch(decrement(productId));
   };
 
   const handleBackPress = () => {
@@ -47,10 +34,7 @@ const CartScreen = ({ navigation }: any) => {
         },
         {
           text: "Clear",
-          onPress: () => {
-            // Implement cart clearing logic here
-            console.log("Cart cleared");
-          },
+          onPress: () => dispatch(clearCart()),
           style: "destructive"
         }
       ]
@@ -66,20 +50,21 @@ const CartScreen = ({ navigation }: any) => {
         onBackPress={handleBackPress}
         onDeletePress={handleDeletePress}
       />
-      <ScrollView>
-        {items.map(item => (
+      <ScrollView style={styles.scrollView}>
+        {items.map((item) => (
           <CartItem
-            key={item.id}
-            image={item.image}
-            name={item.name}
-            price={item.price}
+            key={item.product.product_id}
+            product={item.product}
             quantity={item.quantity}
-            unit={item.unit}
-            onIncrement={() => handleIncrement(item.id)}
-            onDecrement={() => handleDecrement(item.id)}
+            onIncrement={() => handleIncrement(item.product.product_id)}
+            onDecrement={() => handleDecrement(item.product.product_id)}
           />
         ))}
       </ScrollView>
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalLabel}>Toplam Tutar:</Text>
+        <Text style={styles.totalAmount}>{total.toFixed(2)} TL</Text>
+      </View>
     </View>
   );
 };
@@ -89,14 +74,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
   },
-  content: {
+  scrollView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  emptyText: {
-    fontSize: 16,
-    color: Colors.gray,
+  totalContainer: {
+    backgroundColor: '#fff',
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  totalLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#222',
+  },
+  totalAmount: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: Colors.primary,
   },
 });
 

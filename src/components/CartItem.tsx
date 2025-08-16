@@ -1,37 +1,32 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Product } from '../constants/dummyData';
 import Colors from '../constants/colors';
 
-interface CartItemProps {
-  image: string;
-  name: string;
-  price: number;
+type CartItemProps = {
+  product: Product;
   quantity: number;
-  unit: string;
   onIncrement: () => void;
   onDecrement: () => void;
-}
+};
 
 const CartItem: React.FC<CartItemProps> = ({
-  image,
-  name,
-  price,
+  product,
   quantity,
-  unit,
   onIncrement,
-  onDecrement,
+  onDecrement
 }) => {
-  const totalPrice = price * quantity;
+  const totalPrice = product.price * quantity;
 
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: image }} style={styles.image} />
+<View style={styles.container}>
+      <Image source={{ uri: product.image }} style={styles.image} />
       <View style={styles.infoContainer}>
         <View style={styles.headerContainer}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.price}>₺{price.toFixed(2)}</Text>
+        <Text style={styles.name}>{product.product_name}</Text>
+        <Text style={styles.price}>{product.price.toFixed(2)} TL</Text>
         </View>
-        <Text style={styles.unit}>{unit}</Text>
+        <Text style={styles.unit}>{product.unit}</Text>
         <View style={styles.bottomContainer}>
           <View style={styles.quantityContainer}>
             <TouchableOpacity 

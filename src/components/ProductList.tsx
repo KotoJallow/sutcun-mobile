@@ -25,11 +25,8 @@ const ProductList: React.FC<ProductListProps> = ({ selectedCategoryId }) => {
         <View key={idx} style={styles.row}>
           {row.map((item) => (
             <ProductCard
+              product={item}
               key={item.product_id}
-              name={item.product_name}
-              image={item.image}
-              price={item.price}
-              unit={item.unit}
             />
           ))}
         </View>
