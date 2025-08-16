@@ -8,6 +8,7 @@ import LoginScreen from '../screens/LoginScreen';
 import OTPScreen from '../screens/OTPScreen';
 import AddressManagementScreen from '../screens/AddressManagementScreen';
 import CartScreen from '../screens/CartScreen';
+import AddAddressScreen from '../screens/AddAddressScreen';
 import colors from '../constants/colors';
 
 
@@ -31,6 +32,11 @@ export default function RootNavigator() {
         }}
       />
       <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen 
+        name="AddAddress" 
+        component={AddAddressScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
