@@ -1,51 +1,58 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import Colors from '../constants/colors';
 
 interface CustomToolbarProps {
   title: string;
   showCart?: boolean;
   showBack?: boolean;
+  showDelete?: boolean;
   onCartPress?: () => void;
   onBackPress?: () => void;
+  onDeletePress?: () => void;
 }
 
 const CustomToolbar = ({ 
   title, 
   showCart = false, 
   showBack = false,
+  showDelete = false,
   onCartPress,
-  onBackPress 
+  onBackPress,
+  onDeletePress
 }: CustomToolbarProps) => {
   return (
     <SafeAreaView style={styles.safeArea}>
-    <View style={styles.toolbar}>
-      {showBack && (
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={onBackPress}
-        >
-          <MaterialIcons 
-            name="arrow-back" 
-            size={24} 
-            color={Colors.white} 
-          />
-        </TouchableOpacity>
-      )}
-      <Text style={[
-        styles.title,
-        showBack && styles.titleWithBack
-      ]}>{title}</Text>
-      {showCart && (
-        <TouchableOpacity style={styles.cartContainer} onPress={onCartPress}>
-          <MaterialIcons name="shopping-cart" size={24} color={Colors.white} />
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>3</Text>
-          </View>
-        </TouchableOpacity>
-      )}
-    </View>
+      <View style={styles.toolbar}>
+        {showBack && (
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={onBackPress}
+          >
+            <Icon name="arrow-back" size={24} color={Colors.white} />
+          </TouchableOpacity>
+        )}
+        <Text style={styles.title}>{title}</Text>
+        <View style={styles.rightIcons}>
+          {showDelete && (
+            <TouchableOpacity 
+              style={styles.deleteButton} 
+              onPress={onDeletePress}
+            >
+              <Icon name="delete" size={24} color={Colors.white} />
+            </TouchableOpacity>
+          )}
+          {showCart && (
+            <TouchableOpacity style={styles.cartContainer} onPress={onCartPress}>
+              <Icon name="shopping-cart" size={24} color={Colors.white} />
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>3</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -63,14 +70,15 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   title: {
-    color: Colors.white,
+    flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
-    position: 'absolute',
-    left: 0,
-    right: 0,
+    color: Colors.white,
+    marginLeft: 16,
     textAlign: 'center',
-    zIndex: 0,
+  },
+  rightIcons: {
+    flexDirection: 'row',
   },
   backButton: {
     position: 'absolute',
@@ -101,6 +109,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
+  deleteButton: {
+    marginRight: 0,
+  }
 });
 
 export default CustomToolbar;

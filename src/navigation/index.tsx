@@ -7,6 +7,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OTPScreen from '../screens/OTPScreen';
 import AddressManagementScreen from '../screens/AddressManagementScreen';
+import CartScreen from '../screens/CartScreen';
 import colors from '../constants/colors';
 
 
@@ -29,6 +30,7 @@ export default function RootNavigator() {
           headerShown: false
         }}
       />
+      <Stack.Screen name="Cart" component={CartScreen} />
     </Stack.Navigator>
   );
 }

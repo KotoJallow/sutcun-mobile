@@ -12,7 +12,12 @@ import Colors from '../constants/colors';
 
 const Tab = createBottomTabNavigator();
 
-export default function BottomTabs() {
+const BottomTabs = ({ navigation }: any) => {
+
+  const handleCartPress = () => {
+    navigation.navigate('Cart');
+  };
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -33,9 +38,7 @@ export default function BottomTabs() {
             <CustomToolbar
               title={title}
               showCart={showCart}
-              onCartPress={() => {
-                console.log('Sepete tıklandı');
-              }}
+              onCartPress={handleCartPress}
             />
           );
         },
@@ -87,6 +90,8 @@ export default function BottomTabs() {
     </Tab.Navigator>
   );
 }
+
+export default BottomTabs;
 
 const styles = StyleSheet.create({
   homeIconContainer: {
