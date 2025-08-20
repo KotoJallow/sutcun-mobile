@@ -14,10 +14,14 @@ import CustomToolbar from '../components/CustomToolbar';
 import Colors from '../constants/colors';
 import { istanbulDistricts } from '../constants/districts';
 import colors from '../constants/colors';
+import { basakDistrict } from '../constants/districts';
+import { beylikDistrict } from '../constants/districts';
 
 type AddressType = 'ev' | 'iş' | 'diğer';
 
 const AddAddressScreen = ({ navigation } : any) => {
+  const [neighborhood, setNeighborhood] = useState('');
+  const [showNeighborhoodModal, setShowNeighborhoodModal] = useState(false);
   const [street, setStreet] = useState('');
   const [district, setDistrict] = useState('');
   const [showDistrictModal, setShowDistrictModal] = useState(false);
@@ -32,6 +36,63 @@ const AddAddressScreen = ({ navigation } : any) => {
     // TODO: Adresi kaydet
     navigation.goBack();
   };
+
+   const getNeighborhoodList = () => {
+    switch (district) {
+      case 'Başakşehir':
+        return basakDistrict;
+      case 'Beylikdüzü':
+        return beylikDistrict;
+      default:
+        return [];
+    }
+  };
+
+  const SelectionModal = ({ 
+    visible, 
+    onClose, 
+    title, 
+    data, 
+    onSelect 
+  }: {
+    visible: boolean;
+    onClose: () => void;
+    title: string;
+    data: string[];
+    onSelect: (item: string) => void;
+  }) => (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>{title}</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Icon name="close" size={24} color="#333" />
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+              <TouchableOpacity 
+                style={styles.districtItem}
+                onPress={() => {
+                  onSelect(item);
+                  onClose();
+                }}
+              >
+                <Text style={styles.districtItemText}>{item}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </View>
+    </Modal>
+  );
 
   const AddressTypeButton = ({ type, title, iconName }: { type: AddressType, title: string, iconName: string }) => (
     <TouchableOpacity 
@@ -58,24 +119,37 @@ const AddAddressScreen = ({ navigation } : any) => {
     </TouchableOpacity>
   );
 
-  const renderDistrictSelector = () => (
-    <View style={styles.rowContainerMargin}>
-      <TouchableOpacity 
-        style={[styles.cityInput, styles.disabledInput]} 
-        disabled={true}
-      >
-        <Text style={styles.cityText}>İstanbul</Text>
-      </TouchableOpacity>
+    const renderDistrictSelector = () => (
+    <View style={styles.rowContainer}>
+      <View style={styles.floatingInputContainer}>
+        <Text style={styles.floatingLabel}>İlçe *</Text>
+        <TouchableOpacity 
+          style={styles.floatingInput}
+          onPress={() => setShowDistrictModal(true)}
+        >
+          <Text style={district ? styles.districtText : styles.placeholderText}>
+            {district || 'İlçe seçiniz'}
+          </Text>
+          <Icon name="chevron-down" size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity 
-        style={styles.districtInput}
-        onPress={() => setShowDistrictModal(true)}
-      >
-        <Text style={district ? styles.districtText : styles.placeholderText}>
-          {district || 'İlçe seçiniz'}
-        </Text>
-        <Icon name="chevron-down" size={20} color="#666" />
-      </TouchableOpacity>
+      <View style={styles.floatingInputContainer}>
+        <Text style={styles.floatingLabel}>Mahalle *</Text>
+        <TouchableOpacity 
+          style={[
+            styles.floatingInput,
+            !district && styles.disabledInput
+          ]}
+          onPress={() => district && setShowNeighborhoodModal(true)}
+          disabled={!district}
+        >
+          <Text style={neighborhood ? styles.districtText : styles.placeholderText}>
+            {neighborhood || 'Mahalle seçiniz'}
+          </Text>
+          <Icon name="chevron-down" size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -122,10 +196,28 @@ const AddAddressScreen = ({ navigation } : any) => {
       />
       <ScrollView style={styles.content}>
         {renderDistrictSelector()}
-        {renderDistrictModal()}
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Mahalle / Cadde / Sokak *</Text>
+         <SelectionModal
+          visible={showDistrictModal}
+          onClose={() => setShowDistrictModal(false)}
+          title="İlçe Seçiniz"
+          data={istanbulDistricts}
+          onSelect={(item) => {
+            setDistrict(item);
+            setNeighborhood(''); // İlçe değişince mahalle sıfırla
+          }}
+        />
+
+        <SelectionModal
+          visible={showNeighborhoodModal}
+          onClose={() => setShowNeighborhoodModal(false)}
+          title="Mahalle Seçiniz"
+          data={getNeighborhoodList()}
+          onSelect={setNeighborhood}
+        />
+
+        <View style={[styles.inputContainer, {marginTop: 16} ]}>
+          <Text style={styles.label}>Cadde / Sokak *</Text>
           <TextInput
             style={styles.input}
             value={street}
@@ -361,6 +453,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
+    marginBottom:20
   },
   modalContent: {
     backgroundColor: Colors.white,
@@ -389,6 +482,35 @@ const styles = StyleSheet.create({
   districtItemText: {
     fontSize: 16,
     color: '#111827',
+  },
+   floatingInputContainer: {
+    position: 'relative',
+    backgroundColor: Colors.white,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    flex: 1,
+  },
+   floatingLabel: {
+    position: 'absolute',
+    top: 8,
+    left: 16,
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '500',
+    backgroundColor: Colors.white,
+    paddingHorizontal: 4,
+    zIndex: 1,
+  },
+  floatingInput: {
+    paddingTop: 24,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#111827',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
 

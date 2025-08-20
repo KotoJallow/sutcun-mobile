@@ -2,6 +2,7 @@ import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import OrderCard from '../components/OrderCard';
 import CustomToolbar from '../components/CustomToolbar';
+import colors from '../constants/colors';
 
 const DUMMY_ORDERS = [
 	{
@@ -53,7 +54,7 @@ export default function OrdersScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#f5f5f5',
+		backgroundColor: colors.white
 	},
 	scrollContent: {
 		paddingVertical: 16,

@@ -13,6 +13,7 @@ import {
   Feather,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import colors from "../constants/colors";
 
 const RegisterScreen = ({ navigation }: any) => {
   const [name, setName] = useState("");
@@ -132,7 +133,7 @@ const RegisterScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     flexGrow: 1,
   },
   heading: {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome, Feather } from '@expo/vector-icons';
+import colors from '../constants/colors';
 
 
 const WelcomeScreen = () => {
@@ -38,7 +39,7 @@ const WelcomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,

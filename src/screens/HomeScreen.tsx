@@ -4,6 +4,7 @@ import AddressBar from '../components/AddressBar';
 import ImageSlider from '../components/ImageSlider';
 import CategoryList from '../components/CategoryList';
 import ProductList from '../components/ProductList';
+import colors from '../constants/colors';
 
 const HomeScreen = ({ navigation }: any) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Dairy');
@@ -52,6 +53,7 @@ const HomeScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.white,
   },
 });
 

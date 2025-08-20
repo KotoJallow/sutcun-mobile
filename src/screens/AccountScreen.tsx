@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import ProfileCard from '../components/ProfileCard';
 import MenuList from '../components/MenuList';
 import CustomToolbar from '../components/CustomToolbar';
+import colors from '../constants/colors';
 
 export default function AccountScreen({ navigation }: any) {
   const menuItems = [
@@ -55,6 +56,6 @@ export default function AccountScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.white,
   },
 });

@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import colors from "../constants/colors";
 
 const LoginScreen = ({ navigation }: any) => {
   const [phone, setPhone] = useState("");
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     justifyContent: "center",
   },
   logoContainer: {

@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     padding: PADDING,
     alignItems: 'flex-start',
     shadowColor: '#000',
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 2,
     width: CARD_WIDTH,
