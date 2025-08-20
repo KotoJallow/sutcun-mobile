@@ -6,7 +6,6 @@ import {
   TextInput, 
   TouchableOpacity, 
   Text,
-  Image,
   Modal,
   FlatList 
 } from 'react-native';
@@ -14,6 +13,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomToolbar from '../components/CustomToolbar';
 import Colors from '../constants/colors';
 import { istanbulDistricts } from '../constants/districts';
+import colors from '../constants/colors';
 
 type AddressType = 'ev' | 'iş' | 'diğer';
 
@@ -26,13 +26,14 @@ const AddAddressScreen = ({ navigation } : any) => {
   const [apartmentNo, setApartmentNo] = useState('');
   const [description, setDescription] = useState('');
   const [addressType, setAddressType] = useState<AddressType>('ev');
+  const [title, setTitle] = useState('');
   
   const handleSaveAddress = () => {
     // TODO: Adresi kaydet
     navigation.goBack();
   };
 
-  const AddressTypeButton = ({ type, title, icon }: { type: AddressType, title: string, icon: any }) => (
+  const AddressTypeButton = ({ type, title, iconName }: { type: AddressType, title: string, iconName: string }) => (
     <TouchableOpacity 
       style={[
         styles.addressTypeButton,
@@ -40,7 +41,16 @@ const AddAddressScreen = ({ navigation } : any) => {
       ]}
       onPress={() => setAddressType(type)}
     >
-      <Image source={icon} style={styles.addressTypeIcon} />
+      <View style={[
+        styles.iconContainer,
+        addressType === type && styles.selectedIconContainer
+      ]}>
+        <Icon 
+          name={iconName} 
+          size={24} 
+          color={addressType === type ? Colors.primary : '#666'} 
+        />
+      </View>
       <Text style={[
         styles.addressTypeText,
         addressType === type && styles.selectedAddressTypeText
@@ -49,7 +59,7 @@ const AddAddressScreen = ({ navigation } : any) => {
   );
 
   const renderDistrictSelector = () => (
-    <View style={styles.rowContainer}>
+    <View style={styles.rowContainerMargin}>
       <TouchableOpacity 
         style={[styles.cityInput, styles.disabledInput]} 
         disabled={true}
@@ -73,7 +83,7 @@ const AddAddressScreen = ({ navigation } : any) => {
     <Modal
       visible={showDistrictModal}
       transparent={true}
-      animationType="slide"
+      animationType="fade"
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
@@ -120,38 +130,39 @@ const AddAddressScreen = ({ navigation } : any) => {
             style={styles.input}
             value={street}
             onChangeText={setStreet}
-            placeholder="Örn: Kayabaşı, Fenertepe Caddesi"
           />
         </View>
 
         <View style={styles.rowContainer}>
-          <View style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}>
+          <View style={[styles.inputContainer, { flex: 1 }]}>
             <Text style={styles.label}>Bina No *</Text>
             <TextInput
               style={styles.input}
               value={buildingNo}
               onChangeText={setBuildingNo}
-              placeholder="14/b"
+              maxLength={8}
             />
           </View>
 
-          <View style={[styles.inputContainer, { flex: 1, marginHorizontal: 8 }]}>
+          <View style={[styles.inputContainer, { flex: 1 }]}>
             <Text style={styles.label}>Kat *</Text>
             <TextInput
               style={styles.input}
               value={floor}
               onChangeText={setFloor}
-              placeholder="3"
+              keyboardType="numeric"
+              maxLength={8}
             />
           </View>
 
-          <View style={[styles.inputContainer, { flex: 1, marginLeft: 8 }]}>
+          <View style={[styles.inputContainer, { flex: 1 }]}>
             <Text style={styles.label}>Daire No *</Text>
             <TextInput
               style={styles.input}
               value={apartmentNo}
               onChangeText={setApartmentNo}
-              placeholder="5"
+              keyboardType="numeric"
+              maxLength={8}
             />
           </View>
         </View>
@@ -162,7 +173,6 @@ const AddAddressScreen = ({ navigation } : any) => {
             style={[styles.input, styles.addressInput]}
             value={description}
             onChangeText={setDescription}
-            placeholder="Adres tarifi giriniz"
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -175,28 +185,39 @@ const AddAddressScreen = ({ navigation } : any) => {
             <AddressTypeButton 
               type="ev" 
               title="Ev" 
-              icon="home"
+              iconName="home"
             />
             <AddressTypeButton 
               type="iş" 
               title="İş" 
-              icon="home"
+              iconName="office-building"
             />
             <AddressTypeButton 
               type="diğer" 
               title="Diğer" 
-              icon="home" 
+              iconName="map-marker" 
             />
           </View>
         </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Adres Başlığı</Text>
+          <TextInput
+            style={styles.input}
+            value={title}
+            onChangeText={setTitle}
+          />
+        </View>
       </ScrollView>
 
-      <TouchableOpacity 
-        style={styles.saveButton} 
-        onPress={handleSaveAddress}
-      >
-        <Text style={styles.saveButtonText}>Kaydet</Text>
-      </TouchableOpacity>
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity 
+          style={styles.saveButton} 
+          onPress={handleSaveAddress}
+        >
+          <Text style={styles.saveButtonText}>Kaydet</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -204,7 +225,7 @@ const AddAddressScreen = ({ navigation } : any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.white,
   },
   content: {
     flex: 1,
@@ -215,64 +236,83 @@ const styles = StyleSheet.create({
   },
   rowContainer: {
     flexDirection: 'row',
+    gap: 12,
+  },
+  rowContainerMargin: {
     marginBottom: 16,
+    flexDirection: 'row',
     gap: 12,
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 4,
   },
   input: {
     backgroundColor: Colors.white,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
-    fontSize: 16,
+    fontSize: 14,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#e5e7eb',
+    color: '#111827',
   },
   addressInput: {
-    height: 120,
+    height: 100,
+    paddingTop: 8,
   },
   addressTypesContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 8,
+    gap: 8,
   },
   addressTypeButton: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
     padding: 16,
     alignItems: 'center',
-    marginHorizontal: 4,
     backgroundColor: Colors.white,
+    minHeight: 80,
+    justifyContent: 'center',
   },
   selectedAddressType: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.primary + '10',
+    backgroundColor: Colors.primary + '08',
   },
-  addressTypeIcon: {
-    width: 24,
-    height: 24,
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 8,
+  },
+  selectedIconContainer: {
+    backgroundColor: Colors.primary + '15',
   },
   addressTypeText: {
     fontSize: 14,
-    color: '#666',
+    color: '#6b7280',
+    fontWeight: '500',
   },
   selectedAddressTypeText: {
     color: Colors.primary,
     fontWeight: '600',
   },
+  bottomContainer: {
+    padding: 16,
+    paddingBottom: 30,
+    backgroundColor: Colors.white,
+  },
   saveButton: {
     backgroundColor: Colors.primary,
-    marginHorizontal: 16,
-    marginBottom: 30,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 8,
     alignItems: 'center',
   },
   saveButtonText: {
@@ -285,14 +325,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.white,
-    borderRadius: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#e5e7eb',
   },
   disabledInput: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f9fafb',
   },
   districtInput: {
     flex: 1,
@@ -300,22 +340,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: Colors.white,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#e5e7eb',
   },
   cityText: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
   },
   districtText: {
     fontSize: 16,
-    color: '#333',
+    color: '#111827',
   },
   placeholderText: {
     fontSize: 16,
-    color: '#999',
+    color: '#9ca3af',
   },
   modalContainer: {
     flex: 1,
@@ -324,8 +364,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: Colors.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     maxHeight: '70%',
   },
   modalHeader: {
@@ -334,21 +374,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#e5e7eb',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#111827',
   },
   districtItem: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#f3f4f6',
   },
   districtItemText: {
     fontSize: 16,
-    color: '#333',
+    color: '#111827',
   },
 });
 

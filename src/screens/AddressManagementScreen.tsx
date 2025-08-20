@@ -5,6 +5,7 @@ import CustomToolbar from '../components/CustomToolbar';
 import AddressCard from '../components/AddressCard';
 import Colors from '../constants/colors';
 import Strings from '../constants/strings';
+import colors from '../constants/colors';
 
 const DUMMY_ADDRESSES = [
   {
@@ -71,7 +72,7 @@ const AddressManagementScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.white,
   },
   scrollView: {
     flex: 1,
