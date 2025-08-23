@@ -3,8 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome, Feather } from '@expo/vector-icons';
 import colors from '../constants/colors';
 
-
-const WelcomeScreen = () => {
+const WelcomeScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       {/* Placeholder Logo */}
@@ -16,22 +15,31 @@ const WelcomeScreen = () => {
 
       {/* App Title */}
       <Text style={styles.title}>Sütçün</Text>
-      <Text style={styles.subtitle}>Fresh dairy at your doorstep</Text>
+      <Text style={styles.subtitle}>Fresh dairy delivered to your doorstep</Text>
 
-      {/* Login Button */}
-      <TouchableOpacity style={styles.loginButton}>
-        <FontAwesome name="sign-in" size={18} color="#fff" />
-        <Text style={styles.loginText}>Login</Text>
-      </TouchableOpacity>
+      {/* Buttons Container */}
+      <View style={styles.buttonsContainer}>
+        {/* Login Button */}
+        <TouchableOpacity 
+          style={styles.loginButton}
+          onPress={() => navigation.navigate('login')}
+        >
+          <FontAwesome name="sign-in" size={18} color="#fff" />
+          <Text style={styles.loginText}>Login</Text>
+        </TouchableOpacity>
 
-      {/* Register Button */}
-      <TouchableOpacity style={styles.registerButton}>
-        <Feather name="user-plus" size={18} color="#14b8a6" />
-        <Text style={styles.registerText}>Register</Text>
-      </TouchableOpacity>
+        {/* Register Button */}
+        <TouchableOpacity 
+          style={styles.registerButton}
+          onPress={() => navigation.navigate('Register')}
+        >
+          <Feather name="user-plus" size={18} color="#14b8a6" />
+          <Text style={styles.registerText}>Create Account</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Footer */}
-      <Text style={styles.footer}>© 2023 Sütçün. All rights reserved.</Text>
+      <Text style={styles.footer}>© 2025 Sütçün. All rights reserved.</Text>
     </View>
   );
 };
@@ -45,62 +53,89 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   logoWrapper: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   logoBackground: {
-    backgroundColor: '#ccfbf1', // teal-100
-    padding: 24,
+    backgroundColor: '#ccfbf1',
+    padding: 28,
     borderRadius: 999,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   logoEmoji: {
-    fontSize: 32,
+    fontSize: 36,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#111827', // text-gray-900
-    marginBottom: 4,
+    color: '#111827',
+    marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6b7280', // text-gray-600
-    marginBottom: 32,
+    fontSize: 16,
+    color: '#6b7280',
+    marginBottom: 48,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  buttonsContainer: {
+    width: '100%',
+    maxWidth: 300,
   },
   loginButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#14b8a6', // teal-500
-    paddingVertical: 12,
+    justifyContent: 'center',
+    backgroundColor: '#14b8a6',
+    paddingVertical: 16,
     paddingHorizontal: 48,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 16,
+    shadowColor: '#14b8a6',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   loginText: {
     color: '#ffffff',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     marginLeft: 8,
   },
   registerButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#14b8a6',
-    paddingVertical: 12,
+    backgroundColor: '#f0fdfa',
+    paddingVertical: 14,
     paddingHorizontal: 48,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   registerText: {
     color: '#14b8a6',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     marginLeft: 8,
   },
   footer: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 32,
     fontSize: 12,
-    color: '#9ca3af', // text-gray-400
+    color: '#9ca3af',
+    textAlign: 'center',
   },
 });
 
