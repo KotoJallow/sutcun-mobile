@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   cell: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: 8,
     backgroundColor: "#e6f8f8",
     justifyContent: "center",
