@@ -41,13 +41,13 @@ const RegisterScreen = ({ navigation }: any) => {
         <Text style={styles.label}>
           Full Name <Text style={styles.required}>*</Text>
         </Text>
-        <View style={styles.inputWrapper}>
-          <FontAwesome name="user" size={16} color="#9CA3AF" />
+        <View style={styles.modernInputWrapper}>
           <TextInput
-            style={styles.input}
-            placeholder="Enter your full name"
+            style={styles.modernInput}
+            placeholder="Full Name"
             value={name}
             onChangeText={setName}
+            placeholderTextColor="#9CA3AF"
           />
         </View>
 
@@ -55,13 +55,13 @@ const RegisterScreen = ({ navigation }: any) => {
         <Text style={styles.label}>
           Surname <Text style={styles.required}>*</Text>
         </Text>
-        <View style={styles.inputWrapper}>
-          <FontAwesome name="user" size={16} color="#9CA3AF" />
+        <View style={styles.modernInputWrapper}>
           <TextInput
-            style={styles.input}
-            placeholder="Enter your surname"
+            style={styles.modernInput}
+            placeholder="Surname"
             value={surname}
             onChangeText={setSurname}
+            placeholderTextColor="#9CA3AF"
           />
         </View>
 
@@ -69,15 +69,18 @@ const RegisterScreen = ({ navigation }: any) => {
         <Text style={styles.label}>
           Phone Number <Text style={styles.required}>*</Text>
         </Text>
-        <View style={styles.inputWrapper}>
-          <Feather name="phone" size={16} color="#9CA3AF" />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your phone number"
-            keyboardType="phone-pad"
-            value={phone}
-            onChangeText={setPhone}
-          />
+        <View style={styles.modernInputWrapper}>
+          <View style={styles.phoneContainer}>
+            <Text style={styles.countryCode}>+90</Text>
+            <TextInput
+              style={styles.phoneInput}
+              placeholder="555 123 4567"
+              keyboardType="numeric"
+              value={phone}
+              onChangeText={setPhone}
+              placeholderTextColor="#9CA3AF"
+            />
+          </View>
         </View>
         <Text style={styles.note}>
           We'll send a verification code to this number
@@ -211,6 +214,49 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  modernInputWrapper: {
+    borderColor: "#E5E7EB",
+    borderWidth: 1,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  modernInput: {
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: "#111827",
+    backgroundColor: "transparent",
+  },
+  phoneContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  countryCode: {
+    fontSize: 16,
+    color: "#111827",
+    fontWeight: "500",
+    marginRight: 8,
+    paddingRight: 8,
+    borderRightWidth: 1,
+    borderRightColor: "#E5E7EB",
+  },
+  phoneInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#111827",
+    backgroundColor: "transparent",
   },
 });
 
