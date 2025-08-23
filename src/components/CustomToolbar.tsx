@@ -39,7 +39,9 @@ const CustomToolbar = ({
             <Icon name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>
         )}
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{title}</Text>
+        </View>
         <View style={styles.rightIcons}>
           {showDelete && (
             <TouchableOpacity 
@@ -75,20 +77,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     position: 'relative',
   },
+  titleContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   title: {
-    flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
     color: Colors.white,
-    marginLeft: 16,
-    textAlign: 'center',
   },
   rightIcons: {
     flexDirection: 'row',
+    marginLeft: 'auto',
   },
   backButton: {
-    position: 'absolute',
-    left: 16,
     zIndex: 1,
   },
   titleWithBack: {
@@ -96,7 +101,6 @@ const styles = StyleSheet.create({
   },
   cartContainer: {
     position: 'relative',
-    marginLeft: 'auto',
     zIndex: 1,
   },
   badge: {

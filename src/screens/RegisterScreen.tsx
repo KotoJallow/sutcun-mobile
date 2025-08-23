@@ -14,6 +14,7 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import colors from "../constants/colors";
+import CustomToolbar from "../components/CustomToolbar";
 
 const RegisterScreen = ({ navigation }: any) => {
   const [name, setName] = useState("");
@@ -24,109 +25,116 @@ const RegisterScreen = ({ navigation }: any) => {
   const [agreed, setAgreed] = useState(false);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.heading}>Personal Information</Text>
-      <Text style={styles.subheading}>
-        Please fill in your details to create an account
-      </Text>
-
-      {/*  Name */}
-      <Text style={styles.label}>
-        Full Name <Text style={styles.required}>*</Text>
-      </Text>
-      <View style={styles.inputWrapper}>
-        <FontAwesome name="user" size={16} color="#9CA3AF" />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your full name"
-          value={name}
-          onChangeText={setSurname}
-        />
-      </View>
-
-      {/* Surname */}
-      <Text style={styles.label}>
-        Full Name <Text style={styles.required}>*</Text>
-      </Text>
-      <View style={styles.inputWrapper}>
-        <FontAwesome name="user" size={16} color="#9CA3AF" />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your full name"
-          value={surname}
-          onChangeText={setSurname}
-        />
-      </View>
-
-      {/* Phone Number */}
-      <Text style={styles.label}>
-        Phone Number <Text style={styles.required}>*</Text>
-      </Text>
-      <View style={styles.inputWrapper}>
-        <Feather name="phone" size={16} color="#9CA3AF" />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your phone number"
-          keyboardType="phone-pad"
-          value={phone}
-          onChangeText={setPhone}
-        />
-      </View>
-      <Text style={styles.note}>
-        We'll send a verification code to this number
-      </Text>
-
-      {/* Gender */}
-      <Text style={styles.label}>
-        Gender <Text style={styles.optional}>(optional)</Text>
-      </Text>
-      <View style={styles.inputWrapper}>
-        <MaterialCommunityIcons
-          name="gender-male-female"
-          size={16}
-          color="#9CA3AF"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Select your gender"
-          value={gender}
-          onChangeText={setGender}
-        />
-      </View>
-
-      {/* Age */}
-      <Text style={styles.label}>
-        Age <Text style={styles.optional}>(optional)</Text>
-      </Text>
-      <View style={styles.inputWrapper}>
-        <Feather name="calendar" size={16} color="#9CA3AF" />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your age"
-          keyboardType="numeric"
-          value={age}
-          onChangeText={setAge}
-        />
-      </View>
-
-      {/* Terms Agreement */}
-      <View style={styles.checkboxContainer}>
-        <Switch
-          value={agreed}
-          onValueChange={setAgreed}
-          trackColor={{ false: "#ccc", true: "#14b8a6" }}
-          thumbColor={agreed ? "#fff" : "#f4f3f4"}
-        />
-        <Text style={styles.checkboxLabel}>
-          I agree to the Terms of Service and Privacy Policy
+    <View style={{ flex: 1, backgroundColor: colors.white }}>
+      <CustomToolbar
+        title="Register"
+        showBack={true}
+        onBackPress={() => navigation.goBack()}
+      />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.heading}>Personal Information</Text>
+        <Text style={styles.subheading}>
+          Please fill in your details to create an account
         </Text>
-      </View>
 
-      {/* Create Account Button */}
-      <TouchableOpacity style={styles.createButton}>
-        <Text style={styles.createButtonText}>Create Account →</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/*  Name */}
+        <Text style={styles.label}>
+          Full Name <Text style={styles.required}>*</Text>
+        </Text>
+        <View style={styles.inputWrapper}>
+          <FontAwesome name="user" size={16} color="#9CA3AF" />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your full name"
+            value={name}
+            onChangeText={setName}
+          />
+        </View>
+
+        {/* Surname */}
+        <Text style={styles.label}>
+          Surname <Text style={styles.required}>*</Text>
+        </Text>
+        <View style={styles.inputWrapper}>
+          <FontAwesome name="user" size={16} color="#9CA3AF" />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your surname"
+            value={surname}
+            onChangeText={setSurname}
+          />
+        </View>
+
+        {/* Phone Number */}
+        <Text style={styles.label}>
+          Phone Number <Text style={styles.required}>*</Text>
+        </Text>
+        <View style={styles.inputWrapper}>
+          <Feather name="phone" size={16} color="#9CA3AF" />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your phone number"
+            keyboardType="phone-pad"
+            value={phone}
+            onChangeText={setPhone}
+          />
+        </View>
+        <Text style={styles.note}>
+          We'll send a verification code to this number
+        </Text>
+
+        {/* Gender */}
+        <Text style={styles.label}>
+          Gender <Text style={styles.optional}>(optional)</Text>
+        </Text>
+        <View style={styles.inputWrapper}>
+          <MaterialCommunityIcons
+            name="gender-male-female"
+            size={16}
+            color="#9CA3AF"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Select your gender"
+            value={gender}
+            onChangeText={setGender}
+          />
+        </View>
+
+        {/* Age */}
+        <Text style={styles.label}>
+          Age <Text style={styles.optional}>(optional)</Text>
+        </Text>
+        <View style={styles.inputWrapper}>
+          <Feather name="calendar" size={16} color="#9CA3AF" />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your age"
+            keyboardType="numeric"
+            value={age}
+            onChangeText={setAge}
+          />
+        </View>
+
+        {/* Terms Agreement */}
+        <View style={styles.checkboxContainer}>
+          <Switch
+            value={agreed}
+            onValueChange={setAgreed}
+            trackColor={{ false: "#ccc", true: "#14b8a6" }}
+            thumbColor={agreed ? "#fff" : "#f4f3f4"}
+          />
+          <Text style={styles.checkboxLabel}>
+            I agree to the Terms of Service and Privacy Policy
+          </Text>
+        </View>
+
+        {/* Create Account Button */}
+        <TouchableOpacity style={styles.createButton}>
+          <Text style={styles.createButtonText}>Create Account →</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 };
 
