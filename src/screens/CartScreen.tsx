@@ -11,12 +11,18 @@ import Colors from '../constants/colors';
 import { RootState } from '../redux/store';
 import { increment, decrement, clearCart, removeFromCart } from '../redux/cartSlice';
 
+interface DeliveryTime {
+  id: string;
+  label: string;
+  timeRange: string;
+}
+
 const CartScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const { items, total } = useSelector((state: RootState) => state.cart);
   
-  // Teslimat saati state'i
-  const [selectedDeliveryTime, setSelectedDeliveryTime] = useState(null);
+  // Teslimat saati state'i - tip tanımını yukarı taşıdım
+  const [selectedDeliveryTime, setSelectedDeliveryTime] = useState<DeliveryTime | null>(null);
   const [showOrderConfirmModal, setShowOrderConfirmModal] = useState(false);
 
   // Mockup data - Gerçek uygulamada Redux'tan gelecek
@@ -30,12 +36,6 @@ const CartScreen = ({ navigation }: any) => {
     apartmentNo: '5',
     description: 'Taksi durağının karşısı'
   };
-
-  interface DeliveryTime {
-  id: string;
-  label: string;
-  timeRange: string;
-}
 
   const handleIncrement = (productId: number) => {
     dispatch(increment(productId));
@@ -67,7 +67,7 @@ const CartScreen = ({ navigation }: any) => {
     );
   };
 
-  const handleDeliveryTimeSelect = (time: any) => {
+  const handleDeliveryTimeSelect = (time: DeliveryTime) => {
     setSelectedDeliveryTime(time);
   };
 
@@ -81,7 +81,6 @@ const CartScreen = ({ navigation }: any) => {
 
   const handleConfirmOrder = () => {
     setShowOrderConfirmModal(false);
-    // TODO: Sipariş oluşturma işlemi
     Alert.alert('Başarılı', 'Siparişiniz başarıyla oluşturuldu!', [
       {
         text: 'Tamam',
@@ -143,7 +142,7 @@ const CartScreen = ({ navigation }: any) => {
             </View>
             
             <View style={[styles.summaryRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Toplam Tutar: </Text>
+              <Text style={styles.totalLabel}>Toplam Tutar</Text>
               <Text style={styles.totalValue}>{total.toFixed(2)} TL</Text>
             </View>
           </View>
