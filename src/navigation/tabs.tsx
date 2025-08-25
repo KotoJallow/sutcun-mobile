@@ -20,6 +20,7 @@ const BottomTabs = ({ navigation }: any) => {
 
   return (
     <Tab.Navigator
+      initialRouteName="Home" 
       screenOptions={{
         header: (props) => {
           const screenName = props.route.name;
