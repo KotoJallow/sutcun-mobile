@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import OrderCard from '../components/OrderCard';
-import CustomToolbar from '../components/CustomToolbar';
 import colors from '../constants/colors';
+
 
 const DUMMY_ORDERS = [
 	{
@@ -31,7 +31,7 @@ const DUMMY_ORDERS = [
 	},
 ];
 
-export default function OrdersScreen() {
+export default function OrdersScreen({ navigation,route }: any) {
 	return (
 		<View style={styles.container}>
 			<ScrollView contentContainerStyle={styles.scrollContent}>

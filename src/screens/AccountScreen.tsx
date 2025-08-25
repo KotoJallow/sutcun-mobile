@@ -35,7 +35,10 @@ export default function AccountScreen({ navigation }: any) {
     {
       title: 'Quit App',
       icon: 'exit-to-app',
-      onPress: () => navigation.navigate('Orders'),
+      onPress: () => navigation.replace('Login'),
+      // Implement proper logout functionality
+      // e.g., clearing user data, tokens, etc.
+
     },
   ];
 
