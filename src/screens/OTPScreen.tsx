@@ -25,7 +25,7 @@ export default function OTPScreen({ route, navigation }: any) {
   const [code, setCode] = useState<string>("");
   const [verificationId, setVerificationId] = useState<string>("");
 
-  const ref = useBlurOnFulfill({ code, cellCount: CELL_COUNT });
+  const ref = useBlurOnFulfill({ value: code, cellCount: CELL_COUNT });
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
     value: code,
     setValue: setCode,
