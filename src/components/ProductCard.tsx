@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../redux/cartSlice';
 import { Product } from '../constants/dummyData';
+import { RootState } from '../redux/store';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 const NUM_OF_CARDS = 2;
@@ -15,9 +17,31 @@ type ProductCardProps = {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const dispatch = useDispatch();
+  const navigation: any = useNavigation();
+  const { addresses } = useSelector((state: RootState) => state.user);
 
   const handleAddToCart = () => {
+    // Check if user has any saved addresses
+    if (addresses.length === 0) {
+      Alert.alert(
+        'Address Required',
+        'You need to add an address before adding products to cart. Would you like to add an address now?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Add Address', 
+            onPress: () => navigation.navigate('AddAddress')
+          }
+        ]
+      );
+      return;
+    }
+
+    // Add product to cart
     dispatch(addToCart(product));
+    
+    // Show success message
+    Alert.alert('Success', `${product.product_name} added to cart!`);
   };
 
   return (

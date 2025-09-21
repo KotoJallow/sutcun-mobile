@@ -10,6 +10,7 @@ import {
   Modal,
   FlatList,
   Platform,
+  Alert,
 } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
@@ -19,8 +20,11 @@ import {
 } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import CustomToolbar from "../components/CustomToolbar";
+import { useDispatch } from 'react-redux';
+import { setUser } from '../redux/userSlice';
 
 const RegisterScreen = ({ navigation }: any) => {
+  const dispatch = useDispatch();
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [phone, setPhone] = useState("");
@@ -64,6 +68,46 @@ const RegisterScreen = ({ navigation }: any) => {
 
   const showDatePickerModal = () => {
     setShowDatePicker(true);
+  };
+
+  const validateForm = () => {
+    if (!name.trim()) {
+      Alert.alert('Error', 'Please enter your first name');
+      return false;
+    }
+    if (!surname.trim()) {
+      Alert.alert('Error', 'Please enter your last name');
+      return false;
+    }
+    if (!phone.trim() || phone.length < 10) {
+      Alert.alert('Error', 'Please enter a valid phone number');
+      return false;
+    }
+    if (!agreed) {
+      Alert.alert('Error', 'Please agree to the Terms of Service and Privacy Policy');
+      return false;
+    }
+    return true;
+  };
+
+  const handleCreateAccount = () => {
+    if (!validateForm()) return;
+
+    // Store user data in Redux
+    dispatch(setUser({
+      name: name.trim(),
+      surname: surname.trim(),
+      phone: `+90${phone.trim()}`,
+      gender: gender || null,
+      age: birthDate ? new Date().getFullYear() - birthDate.getFullYear() : null,
+      isVerified: false,
+    }));
+
+    // Navigate to OTP screen
+    navigation.navigate('OTP', { 
+      phone: `+90${phone.trim()}`,
+      isRegistration: true 
+    });
   };
 
   return (
@@ -177,7 +221,7 @@ const RegisterScreen = ({ navigation }: any) => {
         </View>
 
         {/* Create Account Button */}
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
           <Text style={styles.buttonText}>Create Account</Text>
         </TouchableOpacity>
       </ScrollView>

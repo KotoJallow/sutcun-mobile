@@ -181,6 +181,107 @@ export const products: Product[] = [
     stock_quantity: 90,
     unit: "1 Lt",
     created_at: "2025-08-14 11:15:00"
+  },
+  // Başakşehir/Kayabaşı products
+  {
+    product_id: 13,
+    product_name: "Organik Domates",
+    category_id: 2,
+    category_name: "Organik Sebze",
+    category_icon: "leaf-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Başakşehir",
+    neighborhood_name: "Kayabaşı",
+    price: 18.00,
+    stock_quantity: 75,
+    unit: "1 Kg",
+    created_at: "2025-08-14 12:00:00"
+  },
+  {
+    product_id: 14,
+    product_name: "Taze Süt",
+    category_id: 3,
+    category_name: "Doğal Süt Ürünleri",
+    category_icon: "water-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Başakşehir",
+    neighborhood_name: "Kayabaşı",
+    price: 22.50,
+    stock_quantity: 40,
+    unit: "1 Lt",
+    created_at: "2025-08-14 12:05:00"
+  },
+  {
+    product_id: 15,
+    product_name: "Portakal",
+    category_id: 1,
+    category_name: "Organik Meyve",
+    category_icon: "nutrition-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Başakşehir",
+    neighborhood_name: "Kayabaşı",
+    price: 32.00,
+    stock_quantity: 60,
+    unit: "1 Kg",
+    created_at: "2025-08-14 12:10:00"
+  },
+  // Başakşehir/Bahçeşehir products
+  {
+    product_id: 16,
+    product_name: "Organik Havuç",
+    category_id: 2,
+    category_name: "Organik Sebze",
+    category_icon: "leaf-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Başakşehir",
+    neighborhood_name: "Bahçeşehir",
+    price: 16.50,
+    stock_quantity: 85,
+    unit: "1 Kg",
+    created_at: "2025-08-14 12:15:00"
+  },
+  {
+    product_id: 17,
+    product_name: "Yoğurt",
+    category_id: 3,
+    category_name: "Doğal Süt Ürünleri",
+    category_icon: "water-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Başakşehir",
+    neighborhood_name: "Bahçeşehir",
+    price: 28.00,
+    stock_quantity: 35,
+    unit: "500 Gr",
+    created_at: "2025-08-14 12:20:00"
+  },
+  // Beylikdüzü/Büyükşehir products
+  {
+    product_id: 18,
+    product_name: "Muz",
+    category_id: 1,
+    category_name: "Organik Meyve",
+    category_icon: "nutrition-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Beylikdüzü",
+    neighborhood_name: "Büyükşehir",
+    price: 42.00,
+    stock_quantity: 25,
+    unit: "1 Kg",
+    created_at: "2025-08-14 12:25:00"
+  },
+  {
+    product_id: 19,
+    product_name: "Organik Patates",
+    category_id: 2,
+    category_name: "Organik Sebze",
+    category_icon: "leaf-outline",
+    image: "https://picsum.photos/100/100",
+    district_name: "Beylikdüzü",
+    neighborhood_name: "Büyükşehir",
+    price: 12.00,
+    stock_quantity: 100,
+    unit: "1 Kg",
+    created_at: "2025-08-14 12:30:00"
   }
 ];
 
@@ -200,3 +301,41 @@ export const categories = products.reduce((acc, product) => {
   name: string;
   icon: string;
 }>);
+
+// Product filtering utilities
+export const getProductsByLocation = (district: string, neighborhood: string) => {
+  return products.filter(product => 
+    product.district_name === district && product.neighborhood_name === neighborhood
+  );
+};
+
+export const getProductsByCategory = (categoryId: number, district?: string, neighborhood?: string) => {
+  let filteredProducts = products.filter(product => product.category_id === categoryId);
+  
+  if (district && neighborhood) {
+    filteredProducts = filteredProducts.filter(product => 
+      product.district_name === district && product.neighborhood_name === neighborhood
+    );
+  }
+  
+  return filteredProducts;
+};
+
+export const getDefaultProducts = () => {
+  // Default products for Beylikdüzü/Kavaklı (for new users)
+  return getProductsByLocation('Beylikdüzü', 'Kavaklı');
+};
+
+export const getAllDistricts = () => {
+  const districts = [...new Set(products.map(product => product.district_name))];
+  return districts;
+};
+
+export const getNeighborhoodsByDistrict = (district: string) => {
+  const neighborhoods = [...new Set(
+    products
+      .filter(product => product.district_name === district)
+      .map(product => product.neighborhood_name)
+  )];
+  return neighborhoods;
+};

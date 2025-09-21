@@ -8,7 +8,7 @@ interface OrderCardProps {
   itemCount: number;
   items: string;
   total: number;
-  status: 'delivered' | 'pending' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled';
 }
 
 const OrderCard: React.FC<OrderCardProps> = ({

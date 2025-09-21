@@ -7,15 +7,21 @@ interface AddressCardProps {
   title: string;
   address: string;
   onOptionsPress: () => void;
+  isDefault?: boolean;
 }
 
-const AddressCard: React.FC<AddressCardProps> = ({ title, address, onOptionsPress }) => {
+const AddressCard: React.FC<AddressCardProps> = ({ title, address, onOptionsPress, isDefault = false }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDefault && styles.defaultContainer]}>
       <View style={styles.leftContent}>
         <View style={styles.titleContainer}>
           <Icon name="home" size={24} color={Colors.primary} style={styles.icon} />
           <Text style={styles.title}>{title}</Text>
+          {isDefault && (
+            <View style={styles.defaultBadge}>
+              <Text style={styles.defaultText}>Default</Text>
+            </View>
+          )}
         </View>
         <Text style={styles.address}>{address}</Text>
       </View>
@@ -42,6 +48,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  defaultContainer: {
+    borderWidth: 2,
+    borderColor: Colors.primary,
+  },
   leftContent: {
     flex: 1,
   },
@@ -57,6 +67,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
+  },
+  defaultBadge: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  defaultText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Colors.white,
   },
   address: {
     fontSize: 14,

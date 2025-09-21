@@ -1,35 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../constants/colors';
-
-interface DeliveryTime {
-  id: string;
-  label: string;
-  timeRange: string;
-}
+import { RootState } from '../redux/store';
+import { 
+  DeliveryTimeSlot, 
+  formatDeliveryDate 
+} from '../constants/deliveryTimes';
+import LoadingSpinner from './LoadingSpinner';
+import ErrorMessage from './ErrorMessage';
+import { useDeliverySlots } from '../hooks/useApi';
 
 interface DeliveryTimeSelectorProps {
-  selectedTime: DeliveryTime | null;
-  onTimeSelect: (time: DeliveryTime) => void;
+  selectedTime: DeliveryTimeSlot | null;
+  onTimeSelect: (time: DeliveryTimeSlot) => void;
 }
 
 const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({ selectedTime, onTimeSelect }) => {
   const [showModal, setShowModal] = useState(false);
+  const { addresses } = useSelector((state: RootState) => state.user);
+  
+  // Get delivery location
+  const getDeliveryLocation = () => {
+    if (addresses.length > 0) {
+      const defaultAddress = addresses.find(addr => addr.isDefault);
+      if (defaultAddress) {
+        return {
+          district: defaultAddress.district,
+          neighborhood: defaultAddress.neighborhood,
+        };
+      }
+    }
+    // Default to Beylikdüzü/Kavaklı if no address
+    return {
+      district: 'Beylikdüzü',
+      neighborhood: 'Kavaklı',
+    };
+  };
 
-  // Teslimat saatleri - gerçek uygulamada API'dan gelecek
-  const deliveryTimes: DeliveryTime[] = [
-    { id: '1', label: 'Yarın', timeRange: '10:00-12:00' },
-    { id: '2', label: 'Yarın', timeRange: '12:00-14:00' },
+  const location = getDeliveryLocation();
+  const { data: deliveryTimes, loading, error, refetch } = useDeliverySlots(location);
 
-  ];
-
-  const handleTimeSelect = (time: DeliveryTime) => {
+  const handleTimeSelect = (time: DeliveryTimeSlot) => {
     onTimeSelect(time);
     setShowModal(false);
   };
 
-  const renderTimeItem = ({ item }: { item: DeliveryTime }) => (
+  const renderTimeItem = ({ item }: { item: DeliveryTimeSlot }) => (
     <TouchableOpacity
       style={[
         styles.timeItem,
@@ -39,173 +57,226 @@ const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({ selectedTim
     >
       <View style={styles.timeItemContent}>
         <Text style={[
+          styles.timeItemDate,
+          selectedTime?.id === item.id && styles.selectedTimeItemText
+        ]}>
+          {formatDeliveryDate(item.date, item.dayOfWeek)}
+        </Text>
+        <Text style={[
           styles.timeItemLabel,
-          selectedTime?.id === item.id && styles.selectedTimeItemLabel
+          selectedTime?.id === item.id && styles.selectedTimeItemText
         ]}>
           {item.label}
         </Text>
         <Text style={[
           styles.timeItemRange,
-          selectedTime?.id === item.id && styles.selectedTimeItemRange
+          selectedTime?.id === item.id && styles.selectedTimeItemText
         ]}>
           {item.timeRange}
         </Text>
       </View>
       {selectedTime?.id === item.id && (
-        <Icon name="check-circle" size={20} color={Colors.primary} />
+        <Icon name="check-circle" size={24} color={Colors.primary} />
       )}
     </TouchableOpacity>
   );
 
   return (
-    <>
-      <TouchableOpacity style={styles.selectorCard} onPress={() => setShowModal(true)}>
-        <View style={styles.selectorHeader}>
-          <View style={styles.selectorTitleContainer}>
-            <Icon name="clock-outline" size={20} color={Colors.primary} />
-            <Text style={styles.selectorTitle}>Teslimat Saati</Text>
-          </View>
-          <Icon name="chevron-right" size={20} color="#6b7280" />
-        </View>
-        
+    <View style={styles.container}>
+      <Text style={styles.title}>Delivery Time</Text>
+      
+      <TouchableOpacity
+        style={styles.selectorButton}
+        onPress={() => setShowModal(true)}
+      >
         <View style={styles.selectorContent}>
-          {selectedTime ? (
-            <Text style={styles.selectedTimeText}>
-              {selectedTime.label} {selectedTime.timeRange}
-            </Text>
-          ) : (
-            <Text style={styles.placeholderText}>
-              Teslimat saati seçiniz
-            </Text>
-          )}
+          <Icon name="clock-outline" size={20} color={Colors.primary} />
+          <View style={styles.selectorText}>
+            {selectedTime ? (
+              <>
+                <Text style={styles.selectedDate}>
+                  {formatDeliveryDate(selectedTime.date, selectedTime.dayOfWeek)}
+                </Text>
+                <Text style={styles.selectedTime}>
+                  {selectedTime.label} • {selectedTime.timeRange}
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.placeholderText}>Select delivery time</Text>
+            )}
+          </View>
+          <Icon name="chevron-down" size={20} color="#6B7280" />
         </View>
       </TouchableOpacity>
 
       <Modal
         visible={showModal}
         transparent={true}
-        animationType="fade"
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Teslimat Saati Seçiniz</Text>
+              <Text style={styles.modalTitle}>Select Delivery Time</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Icon name="close" size={24} color="#333" />
+                <Icon name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
             </View>
+            
             <FlatList
-              data={deliveryTimes}
+              data={deliveryTimes || []}
               keyExtractor={(item) => item.id}
               renderItem={renderTimeItem}
+              style={styles.timeList}
               showsVerticalScrollIndicator={false}
+              ListEmptyComponent={() => {
+                if (loading) {
+                  return <LoadingSpinner text="Loading delivery slots..." />;
+                }
+                if (error) {
+                  return (
+                    <ErrorMessage 
+                      message={error} 
+                      onRetry={refetch}
+                      retryText="Retry"
+                    />
+                  );
+                }
+                return (
+                  <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>No delivery slots available</Text>
+                    <Text style={styles.emptySubtext}>Try selecting a different address</Text>
+                  </View>
+                );
+              }}
             />
           </View>
         </View>
       </Modal>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  selectorCard: {
+  container: {
     backgroundColor: Colors.white,
-    margin: 16,
-    marginTop: 0,
-    padding: 16,
+    marginHorizontal: 16,
+    marginVertical: 8,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+    padding: 16,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  selectorHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  selectorTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  selectorTitle: {
+  title: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111827',
-    marginLeft: 8,
+    color: '#374151',
+    marginBottom: 12,
+  },
+  selectorButton: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    padding: 12,
   },
   selectorContent: {
-    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  selectedTimeText: {
-    fontSize: 15,
-    fontWeight: '500',
+  selectorText: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  selectedDate: {
+    fontSize: 14,
+    fontWeight: '600',
     color: '#111827',
   },
-  placeholderText: {
-    fontSize: 15,
-    color: '#9ca3af',
+  selectedTime: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
   },
-  modalContainer: {
+  placeholderText: {
+    fontSize: 14,
+    color: '#9CA3AF',
+  },
+  modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
   },
-  modalContent: {
+  modalContainer: {
     backgroundColor: Colors.white,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    maxHeight: '70%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#E5E7EB',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#111827',
   },
+  timeList: {
+    maxHeight: 400,
+  },
   timeItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: '#F3F4F6',
   },
   selectedTimeItem: {
-    backgroundColor: Colors.primary + '08',
+    backgroundColor: Colors.primary + '10',
   },
   timeItemContent: {
     flex: 1,
   },
-  timeItemLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+  timeItemDate: {
+    fontSize: 14,
+    fontWeight: '600',
     color: '#111827',
-    marginBottom: 2,
   },
-  selectedTimeItemLabel: {
-    color: Colors.primary,
+  timeItemLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
   },
   timeItemRange: {
-    fontSize: 14,
-    color: '#6b7280',
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
   },
-  selectedTimeItemRange: {
+  selectedTimeItemText: {
     color: Colors.primary,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
   },
 });
 

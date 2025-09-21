@@ -9,15 +9,29 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   total: number;
+  groupedItems: { [categoryName: string]: CartItem[] };
 }
 
 const initialState: CartState = {
   items: [],
   total: 0,
+  groupedItems: {},
 };
 
 const calculateTotal = (items: CartItem[]) => {
   return items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+};
+
+const groupItemsByCategory = (items: CartItem[]) => {
+  const grouped: { [categoryName: string]: CartItem[] } = {};
+  items.forEach(item => {
+    const categoryName = item.product.category_name;
+    if (!grouped[categoryName]) {
+      grouped[categoryName] = [];
+    }
+    grouped[categoryName].push(item);
+  });
+  return grouped;
 };
 
 const cartSlice = createSlice({
@@ -35,6 +49,7 @@ const cartSlice = createSlice({
         state.items.push({ product: action.payload, quantity: 1 });
       }
       state.total = calculateTotal(state.items);
+      state.groupedItems = groupItemsByCategory(state.items);
     },
     increment: (state, action: PayloadAction<number>) => {
       const item = state.items.find(
@@ -43,6 +58,7 @@ const cartSlice = createSlice({
       if (item) {
         item.quantity += 1;
         state.total = calculateTotal(state.items);
+        state.groupedItems = groupItemsByCategory(state.items);
       }
     },
     decrement: (state, action: PayloadAction<number>) => {
@@ -58,6 +74,7 @@ const cartSlice = createSlice({
           );
         }
         state.total = calculateTotal(state.items);
+        state.groupedItems = groupItemsByCategory(state.items);
       }
     },
     removeFromCart: (state, action: PayloadAction<number>) => {
@@ -65,10 +82,12 @@ const cartSlice = createSlice({
         item => item.product.product_id !== action.payload
       );
       state.total = calculateTotal(state.items);
+      state.groupedItems = groupItemsByCategory(state.items);
     },
     clearCart: (state) => {
       state.items = [];
       state.total = 0;
+      state.groupedItems = {};
     },
   },
 });

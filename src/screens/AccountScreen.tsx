@@ -1,11 +1,66 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import ProfileCard from '../components/ProfileCard';
 import MenuList from '../components/MenuList';
 import CustomToolbar from '../components/CustomToolbar';
 import colors from '../constants/colors';
+import { RootState } from '../redux/store';
+import { logout } from '../redux/userSlice';
+import { clearCart } from '../redux/cartSlice';
+import { clearCurrentOrder } from '../redux/orderSlice';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/firebaseConfig';
 
 export default function AccountScreen({ navigation }: any) {
+  const dispatch = useDispatch();
+  const { name, surname, phone, isVerified } = useSelector((state: RootState) => state.user);
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Sign out from Firebase
+              await signOut(auth);
+              
+              // Clear Redux state
+              dispatch(logout());
+              dispatch(clearCart());
+              dispatch(clearCurrentOrder());
+              
+              // Navigate to welcome screen
+              navigation.replace('Welcome');
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const getUserDisplayName = () => {
+    if (name && surname) {
+      return `${name} ${surname}`;
+    }
+    return name || 'User';
+  };
+
+  const getUserInitials = () => {
+    if (name && surname) {
+      return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase();
+    }
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  };
+
   const menuItems = [
     {
       title: 'My Orders',
@@ -35,10 +90,7 @@ export default function AccountScreen({ navigation }: any) {
     {
       title: 'Quit App',
       icon: 'exit-to-app',
-      onPress: () => navigation.replace('Login'),
-      // Implement proper logout functionality
-      // e.g., clearing user data, tokens, etc.
-
+      onPress: handleLogout,
     },
   ];
 
@@ -46,9 +98,10 @@ export default function AccountScreen({ navigation }: any) {
     <View style={styles.container}>
       <ScrollView>
         <ProfileCard
-          name="Ahmet Süt"
-          phone="+90 555 123 4567"
-          initials="AS"
+          name={getUserDisplayName()}
+          phone={phone || 'Not provided'}
+          initials={getUserInitials()}
+          isVerified={isVerified}
         />
         <MenuList items={menuItems} />
       </ScrollView>

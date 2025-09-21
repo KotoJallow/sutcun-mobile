@@ -10,31 +10,57 @@ import PaymentMethodSelector from '../components/PaymentMethodSelector';
 import Colors from '../constants/colors';
 import { RootState } from '../redux/store';
 import { increment, decrement, clearCart, removeFromCart } from '../redux/cartSlice';
-
-interface DeliveryTime {
-  id: string;
-  label: string;
-  timeRange: string;
-}
+import { DeliveryTimeSlot } from '../constants/deliveryTimes';
+import { createOrder, clearCurrentOrder } from '../redux/orderSlice';
+import { useCreateOrder } from '../hooks/useApi';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const CartScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
-  const { items, total } = useSelector((state: RootState) => state.cart);
+  const { items, total, groupedItems } = useSelector((state: RootState) => state.cart);
+  const { addresses } = useSelector((state: RootState) => state.user);
   
   // Teslimat saati state'i - tip tanımını yukarı taşıdım
-  const [selectedDeliveryTime, setSelectedDeliveryTime] = useState<DeliveryTime | null>(null);
+  const [selectedDeliveryTime, setSelectedDeliveryTime] = useState<DeliveryTimeSlot | null>(null);
   const [showOrderConfirmModal, setShowOrderConfirmModal] = useState(false);
 
-  // Mockup data - Gerçek uygulamada Redux'tan gelecek
-  const selectedAddress = {
-    title: 'Evim',
-    district: 'Başakşehir',
-    neighborhood: 'Kayabaşı',
-    street: 'Fenertepe Caddesi',
-    buildingNo: '14/b',
-    floor: '3',
-    apartmentNo: '5',
-    description: 'Taksi durağının karşısı'
+  // API mutation for creating orders
+  const { mutate: createOrderApi, loading: isCreatingOrder } = useCreateOrder();
+
+  // Get default address for delivery
+  const getDefaultAddress = () => {
+    if (addresses.length > 0) {
+      const defaultAddress = addresses.find(addr => addr.isDefault);
+      if (defaultAddress) {
+        return {
+      id: defaultAddress.id,
+      title: defaultAddress.title,
+      district: defaultAddress.district,
+      neighborhood: defaultAddress.neighborhood,
+      street: defaultAddress.street,
+      buildingNo: defaultAddress.buildingNo,
+      floor: defaultAddress.floor,
+      apartmentNo: defaultAddress.apartmentNo,
+      description: defaultAddress.description,
+      icon: defaultAddress.icon,
+      isDefault: defaultAddress.isDefault,
+        };
+      }
+    }
+    // Fallback address
+    return {
+    id: 'local-default',
+    title: 'Default',
+      district: 'Beylikdüzü',
+      neighborhood: 'Kavaklı',
+      street: 'Default Street',
+      buildingNo: '1',
+      floor: '1',
+      apartmentNo: '1',
+      description: 'Default address',
+    icon: '',
+    isDefault: true,
+    };
   };
 
   const handleIncrement = (productId: number) => {
@@ -67,7 +93,7 @@ const CartScreen = ({ navigation }: any) => {
     );
   };
 
-  const handleDeliveryTimeSelect = (time: DeliveryTime) => {
+  const handleDeliveryTimeSelect = (time: DeliveryTimeSlot) => {
     setSelectedDeliveryTime(time);
   };
 
@@ -79,17 +105,62 @@ const CartScreen = ({ navigation }: any) => {
     setShowOrderConfirmModal(true);
   };
 
-  const handleConfirmOrder = () => {
-    setShowOrderConfirmModal(false);
-    Alert.alert('Başarılı', 'Siparişiniz başarıyla oluşturuldu!', [
-      {
-        text: 'Tamam',
-        onPress: () => {
-          dispatch(clearCart());
-          navigation.goBack();
-        }
+  const handleConfirmOrder = async () => {
+    if (!selectedDeliveryTime) {
+      Alert.alert('Error', 'Please select a delivery time');
+      return;
+    }
+
+    const deliveryAddress = getDefaultAddress();
+    
+    try {
+      // Try to create order via API first
+      const apiOrder = await createOrderApi({
+        items,
+        total,
+        deliveryAddress,
+        deliveryTime: selectedDeliveryTime,
+        paymentMethod: 'cash_on_delivery',
+      });
+
+      if (apiOrder) {
+        // If API order creation succeeds, also store locally
+        dispatch(createOrder({
+          items,
+          total,
+          deliveryAddress,
+          deliveryTime: selectedDeliveryTime,
+          paymentMethod: 'cash_on_delivery',
+        }));
       }
-    ]);
+    } catch (error) {
+      // If API fails, create local order as fallback
+      console.warn('API order creation failed, creating local order:', error);
+      dispatch(createOrder({
+        items,
+        total,
+        deliveryAddress,
+        deliveryTime: selectedDeliveryTime,
+        paymentMethod: 'cash_on_delivery',
+      }));
+    }
+
+    setShowOrderConfirmModal(false);
+    
+    Alert.alert(
+      'Order Confirmed!', 
+      'Your order has been placed successfully. You can track it in the Orders section.',
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            dispatch(clearCart());
+            dispatch(clearCurrentOrder());
+            navigation.goBack();
+          }
+        }
+      ]
+    );
   };
 
   const OrderConfirmModal = () => (
@@ -121,7 +192,7 @@ const CartScreen = ({ navigation }: any) => {
               <Icon name="map-marker" size={20} color="#6b7280" />
               <Text style={styles.summaryLabel}>Teslimat Adresi</Text>
               <Text style={styles.summaryValue} numberOfLines={1}>
-                {selectedAddress.neighborhood}
+                {getDefaultAddress().neighborhood}
               </Text>
             </View>
             
@@ -130,7 +201,7 @@ const CartScreen = ({ navigation }: any) => {
                 <Icon name="clock-outline" size={20} color="#6b7280" />
                 <Text style={styles.summaryLabel}>Teslimat Saati</Text>
                 <Text style={styles.summaryValue}>
-                  {selectedDeliveryTime.label} {selectedDeliveryTime.timeRange}
+                  {selectedDeliveryTime.date} - {selectedDeliveryTime.label} {selectedDeliveryTime.timeRange}
                 </Text>
               </View>
             )}
@@ -156,10 +227,15 @@ const CartScreen = ({ navigation }: any) => {
             </TouchableOpacity>
             
             <TouchableOpacity
-              style={styles.confirmButton}
+              style={[styles.confirmButton, isCreatingOrder && styles.confirmButtonDisabled]}
               onPress={handleConfirmOrder}
+              disabled={isCreatingOrder}
             >
-              <Text style={styles.confirmButtonText}>Siparişi Onayla</Text>
+              {isCreatingOrder ? (
+                <LoadingSpinner size="small" color="#fff" />
+              ) : (
+                <Text style={styles.confirmButtonText}>Siparişi Onayla</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -177,19 +253,24 @@ const CartScreen = ({ navigation }: any) => {
         onDeletePress={handleDeletePress}
       />
       <ScrollView style={styles.scrollView}>
-        {items.map((item) => (
-          <CartItem
-            key={item.product.product_id}
-            product={item.product}
-            quantity={item.quantity}
-            onIncrement={() => handleIncrement(item.product.product_id)}
-            onDecrement={() => handleDecrement(item.product.product_id)}
-          />
+        {Object.keys(groupedItems).map((categoryName) => (
+          <View key={categoryName} style={styles.categorySection}>
+            <Text style={styles.categoryTitle}>{categoryName}</Text>
+            {groupedItems[categoryName].map((item) => (
+              <CartItem
+                key={item.product.product_id}
+                product={item.product}
+                quantity={item.quantity}
+                onIncrement={() => handleIncrement(item.product.product_id)}
+                onDecrement={() => handleDecrement(item.product.product_id)}
+              />
+            ))}
+          </View>
         ))}
         
         {items.length > 0 && (
           <>
-            <SelectedAddressCard address={selectedAddress} />
+            <SelectedAddressCard address={getDefaultAddress()} />
             <DeliveryTimeSelector
               selectedTime={selectedDeliveryTime}
               onTimeSelect={handleDeliveryTimeSelect}
@@ -228,6 +309,19 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  categorySection: {
+    marginBottom: 20,
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
   },
   bottomSection: {
     backgroundColor: Colors.white,
@@ -383,6 +477,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: Colors.primary,
     alignItems: 'center',
+  },
+  confirmButtonDisabled: {
+    backgroundColor: '#ccc',
   },
   confirmButtonText: {
     fontSize: 16,

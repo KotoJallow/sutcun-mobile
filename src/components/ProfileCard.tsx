@@ -1,22 +1,32 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../constants/colors';
 
 interface ProfileCardProps {
   name: string;
   phone: string;
   initials: string;
+  isVerified?: boolean;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ name, phone, initials }) => {
+const ProfileCard: React.FC<ProfileCardProps> = ({ name, phone, initials, isVerified = false }) => {
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
         <Text style={styles.avatarText}>{initials}</Text>
       </View>
       <View style={styles.infoContainer}>
-        <Text style={styles.name}>{name}</Text>
+        <View style={styles.nameContainer}>
+          <Text style={styles.name}>{name}</Text>
+          {isVerified && (
+            <Icon name="check-circle" size={20} color={Colors.primary} style={styles.verifiedIcon} />
+          )}
+        </View>
         <Text style={styles.phone}>{phone}</Text>
+        {isVerified && (
+          <Text style={styles.verifiedText}>Verified Account</Text>
+        )}
       </View>
     </View>
   );
@@ -52,16 +62,30 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     marginLeft: 16,
+    flex: 1,
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   name: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
   },
+  verifiedIcon: {
+    marginLeft: 8,
+  },
   phone: {
     fontSize: 14,
     color: '#666',
     marginTop: 4,
+  },
+  verifiedText: {
+    fontSize: 12,
+    color: Colors.primary,
+    marginTop: 2,
+    fontWeight: '500',
   },
 });
 

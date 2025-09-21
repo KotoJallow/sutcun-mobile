@@ -7,7 +7,8 @@ import {
   TouchableOpacity, 
   Text,
   Modal,
-  FlatList 
+  FlatList,
+  Alert 
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomToolbar from '../components/CustomToolbar';
@@ -16,10 +17,13 @@ import { istanbulDistricts } from '../constants/districts';
 import colors from '../constants/colors';
 import { basakDistrict } from '../constants/districts';
 import { beylikDistrict } from '../constants/districts';
+import { useDispatch } from 'react-redux';
+import { addAddress } from '../redux/userSlice';
 
 type AddressType = 'ev' | 'iş' | 'diğer';
 
 const AddAddressScreen = ({ navigation } : any) => {
+  const dispatch = useDispatch();
   const [neighborhood, setNeighborhood] = useState('');
   const [showNeighborhoodModal, setShowNeighborhoodModal] = useState(false);
   const [street, setStreet] = useState('');
@@ -32,8 +36,56 @@ const AddAddressScreen = ({ navigation } : any) => {
   const [addressType, setAddressType] = useState<AddressType>('ev');
   const [title, setTitle] = useState('');
   
+  const validateForm = () => {
+    if (!district) {
+      Alert.alert('Error', 'Please select a district');
+      return false;
+    }
+    if (!neighborhood) {
+      Alert.alert('Error', 'Please select a neighborhood');
+      return false;
+    }
+    if (!street.trim()) {
+      Alert.alert('Error', 'Please enter street/avenue');
+      return false;
+    }
+    if (!buildingNo.trim()) {
+      Alert.alert('Error', 'Please enter building number');
+      return false;
+    }
+    if (!floor.trim()) {
+      Alert.alert('Error', 'Please enter floor');
+      return false;
+    }
+    if (!apartmentNo.trim()) {
+      Alert.alert('Error', 'Please enter apartment number');
+      return false;
+    }
+    if (!title.trim()) {
+      Alert.alert('Error', 'Please enter address title');
+      return false;
+    }
+    return true;
+  };
+
   const handleSaveAddress = () => {
-    // TODO: Adresi kaydet
+    if (!validateForm()) return;
+
+    const newAddress = {
+      id: Date.now().toString(),
+      title: title.trim(),
+      district,
+      neighborhood,
+      street: street.trim(),
+      buildingNo: buildingNo.trim(),
+      floor: floor.trim(),
+      apartmentNo: apartmentNo.trim(),
+      description: description.trim(),
+      icon: addressType === 'ev' ? 'home' : addressType === 'iş' ? 'briefcase' : 'map-marker',
+      isDefault: false,
+    };
+
+    dispatch(addAddress(newAddress));
     navigation.goBack();
   };
 

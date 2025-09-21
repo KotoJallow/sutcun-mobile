@@ -1,51 +1,68 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Text } from 'react-native';
+import { useSelector } from 'react-redux';
 import OrderCard from '../components/OrderCard';
 import colors from '../constants/colors';
+import { RootState } from '../redux/store';
+import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
+import { useOrders } from '../hooks/useApi';
 
+export default function OrdersScreen({ navigation, route }: any) {
+	const { data: apiOrders, loading, error, refetch } = useOrders();
+	const { orders: localOrders } = useSelector((state: RootState) => state.orders);
+	
+	// Use API orders if available, otherwise fall back to local Redux orders
+	const orders = apiOrders || localOrders;
 
-const DUMMY_ORDERS = [
-	{
-		orderNumber: 'ORD-8756',
-		date: 'July 18, 2023',
-		itemCount: 3,
-		items: 'Milk, Yogurt, Cheese',
-		total: 145.5,
-		status: 'delivered' as const,
-	},
-	{
-		orderNumber: 'ORD-8755',
-		date: 'July 17, 2023',
-		itemCount: 5,
-		items: 'Bread, Eggs, Butter, Jam, Coffee',
-		total: 234.75,
-		status: 'pending' as const,
-	},
-	{
-		orderNumber: 'ORD-8754',
-		date: 'July 16, 2023',
-		itemCount: 2,
-		items: 'Water, Juice',
-		total: 45.9,
-		status: 'delivered' as const,
-	},
-];
+	const formatOrderDate = (dateString: string) => {
+		const date = new Date(dateString);
+		return date.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
+	};
 
-export default function OrdersScreen({ navigation,route }: any) {
+	const getOrderItemsText = (items: any[]) => {
+		return items.map(item => item.product.product_name).join(', ');
+	};
+
+	if (loading) {
+		return <LoadingSpinner text="Loading orders..." />;
+	}
+
+	if (error) {
+		return (
+			<ErrorMessage 
+				message={error} 
+				onRetry={refetch}
+				retryText="Retry"
+			/>
+		);
+	}
+
 	return (
 		<View style={styles.container}>
 			<ScrollView contentContainerStyle={styles.scrollContent}>
-				{DUMMY_ORDERS.map((order) => (
-					<OrderCard
-						key={order.orderNumber}
-						orderNumber={order.orderNumber}
-						date={order.date}
-						itemCount={order.itemCount}
-						items={order.items}
-						total={order.total}
-						status={order.status}
-					/>
-				))}
+				{orders.length === 0 ? (
+					<View style={styles.emptyContainer}>
+						<Text style={styles.emptyText}>No orders yet</Text>
+						<Text style={styles.emptySubtext}>Your orders will appear here</Text>
+					</View>
+				) : (
+					orders.map((order) => (
+						<OrderCard
+							key={order.id}
+							orderNumber={order.orderNumber}
+							date={formatOrderDate(order.date)}
+							itemCount={order.items.length}
+							items={getOrderItemsText(order.items)}
+							total={order.total}
+							status={order.status}
+						/>
+					))
+				)}
 			</ScrollView>
 		</View>
 	);
@@ -58,5 +75,22 @@ const styles = StyleSheet.create({
 	},
 	scrollContent: {
 		paddingVertical: 16,
+	},
+	emptyContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingVertical: 60,
+	},
+	emptyText: {
+		fontSize: 18,
+		fontWeight: '600',
+		color: '#374151',
+		marginBottom: 8,
+	},
+	emptySubtext: {
+		fontSize: 14,
+		color: '#6B7280',
+		textAlign: 'center',
 	},
 });
