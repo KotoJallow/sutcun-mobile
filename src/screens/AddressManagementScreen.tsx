@@ -9,10 +9,12 @@ import Strings from '../constants/strings';
 import colors from '../constants/colors';
 import { RootState } from '../redux/store';
 import { setDefaultAddress, removeAddress } from '../redux/userSlice';
+import { useDeleteAddress } from '../hooks/useApi';
 
 const AddressManagementScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const { addresses } = useSelector((state: RootState) => state.user);
+  const { mutate: deleteAddressApi, loading: isDeleting } = useDeleteAddress();
 
   const handleBackPress = () => {
     navigation.goBack();
@@ -36,7 +38,26 @@ const AddressManagementScreen = ({ navigation }: any) => {
               'Are you sure you want to delete this address?',
               [
                 { text: 'Cancel', style: 'cancel' },
-                { text: 'Delete', style: 'destructive', onPress: () => dispatch(removeAddress(addressId)) }
+                { 
+                  text: 'Delete', 
+                  style: 'destructive', 
+                  onPress: async () => {
+                    try {
+                      console.log('🗑️ Deleting address:', addressId);
+                      const success = await deleteAddressApi(addressId);
+                      if (success) {
+                        // Only remove from Redux if database deletion succeeded
+                        dispatch(removeAddress(addressId));
+                        console.log('✅ Address deleted successfully');
+                      } else {
+                        Alert.alert('Error', 'Failed to delete address. Please try again.');
+                      }
+                    } catch (error) {
+                      console.error('❌ Error deleting address:', error);
+                      Alert.alert('Error', 'Failed to delete address. Please try again.');
+                    }
+                  }
+                }
               ]
             );
           }

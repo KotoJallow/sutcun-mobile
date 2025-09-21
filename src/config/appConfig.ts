@@ -1,7 +1,7 @@
 // Configuration file to control data source
 export const CONFIG = {
   // Set to true to use API calls, false to use dummy data
-  USE_API: false,
+  USE_API: true,
   
   // API Configuration
   API_BASE_URL: 'https://api.sutcun.com', // Replace with your actual API URL

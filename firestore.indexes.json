@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "deliveryTimeSlots",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "district", "order": "ASCENDING" },
+        { "fieldPath": "neighborhood", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "ASCENDING" },
+        { "fieldPath": "startTime", "order": "ASCENDING" }
+      ]
+    }
+  ]
+}

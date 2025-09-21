@@ -12,13 +12,15 @@ import { RootState } from '../redux/store';
 import { increment, decrement, clearCart, removeFromCart } from '../redux/cartSlice';
 import { DeliveryTimeSlot } from '../constants/deliveryTimes';
 import { createOrder, clearCurrentOrder } from '../redux/orderSlice';
-import { useCreateOrder } from '../hooks/useApi';
+import { useCreateOrder, useDeliverySlots } from '../hooks/useApi';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { simpleDataService } from '../services/dataServiceSimple';
 
 const CartScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const { items, total, groupedItems } = useSelector((state: RootState) => state.cart);
   const { addresses } = useSelector((state: RootState) => state.user);
+  const user = useSelector((state: RootState) => state.user);
   
   // Teslimat saati state'i - tip tanımını yukarı taşıdım
   const [selectedDeliveryTime, setSelectedDeliveryTime] = useState<DeliveryTimeSlot | null>(null);
@@ -26,6 +28,13 @@ const CartScreen = ({ navigation }: any) => {
 
   // API mutation for creating orders
   const { mutate: createOrderApi, loading: isCreatingOrder } = useCreateOrder();
+  
+  // Get delivery slots from Firebase
+  const defaultAddress = addresses.find(addr => addr.isDefault);
+  const { data: deliverySlots, loading: slotsLoading } = useDeliverySlots({
+    district: defaultAddress?.district || 'Beylikdüzü',
+    neighborhood: defaultAddress?.neighborhood || 'Kavaklı'
+  });
 
   // Get default address for delivery
   const getDefaultAddress = () => {
@@ -106,61 +115,135 @@ const CartScreen = ({ navigation }: any) => {
   };
 
   const handleConfirmOrder = async () => {
+    // Validation checks
     if (!selectedDeliveryTime) {
       Alert.alert('Error', 'Please select a delivery time');
       return;
     }
 
+    if (!items || items.length === 0) {
+      Alert.alert('Error', 'Your cart is empty. Please add items before placing an order.');
+      return;
+    }
+
+    if (!user?.id) {
+      Alert.alert('Error', 'User not authenticated. Please log in again.');
+      return;
+    }
+
     const deliveryAddress = getDefaultAddress();
     
+    // Validate delivery address
+    if (!deliveryAddress || !deliveryAddress.id || deliveryAddress.id === 'local-default') {
+      Alert.alert('Error', 'Please add a valid delivery address before placing an order.');
+      return;
+    }
+
+    console.log('🛒 Starting order creation with:', { 
+      items: items.length, 
+      total, 
+      deliveryAddress: deliveryAddress.id, 
+      selectedDeliveryTime: selectedDeliveryTime.label,
+      userId: user.id 
+    });
+    
     try {
-      // Try to create order via API first
-      const apiOrder = await createOrderApi({
+      // Try to create order using simplified service
+      console.log('📞 Calling simpleDataService.createOrder...');
+      const apiOrder = await simpleDataService.createOrder({
         items,
         total,
         deliveryAddress,
         deliveryTime: selectedDeliveryTime,
         paymentMethod: 'cash_on_delivery',
       });
+      console.log('✅ Simple order created:', apiOrder);
 
       if (apiOrder) {
-        // If API order creation succeeds, also store locally
-        dispatch(createOrder({
-          items,
-          total,
-          deliveryAddress,
-          deliveryTime: selectedDeliveryTime,
-          paymentMethod: 'cash_on_delivery',
-        }));
+        // Order is already saved to Firestore, no need to dispatch to Redux
+        console.log('✅ Order saved to Firestore successfully');
+        
+        // Success flow
+        setShowOrderConfirmModal(false);
+        
+        Alert.alert(
+          'Order Confirmed!', 
+          'Your order has been placed successfully. You can track it in the Orders section.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                dispatch(clearCart());
+                dispatch(clearCurrentOrder());
+                navigation.goBack();
+              }
+            }
+          ]
+        );
+      } else {
+        throw new Error('Order creation returned null/undefined');
       }
     } catch (error) {
-      // If API fails, create local order as fallback
-      console.warn('API order creation failed, creating local order:', error);
-      dispatch(createOrder({
-        items,
-        total,
-        deliveryAddress,
-        deliveryTime: selectedDeliveryTime,
-        paymentMethod: 'cash_on_delivery',
-      }));
-    }
-
-    setShowOrderConfirmModal(false);
-    
-    Alert.alert(
-      'Order Confirmed!', 
-      'Your order has been placed successfully. You can track it in the Orders section.',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            dispatch(clearCart());
-            dispatch(clearCurrentOrder());
-            navigation.goBack();
-          }
+      // Enhanced error handling with specific error messages
+      console.error('❌ Order creation failed:', error);
+      
+      let errorMessage = 'Unable to create order. Please try again.';
+      let errorTitle = 'Order Failed';
+      
+      // Determine specific error type and message
+      if (error instanceof Error) {
+        const errorStr = error.message.toLowerCase();
+        
+        if (errorStr.includes('network') || errorStr.includes('connection')) {
+          errorTitle = 'Connection Error';
+          errorMessage = 'Please check your internet connection and try again.';
+        } else if (errorStr.includes('firestore') || errorStr.includes('firebase')) {
+          errorTitle = 'Database Error';
+          errorMessage = 'There was an issue saving your order. Please try again.';
+        } else if (errorStr.includes('address') || errorStr.includes('delivery')) {
+          errorTitle = 'Address Error';
+          errorMessage = 'Please check your delivery address and try again.';
+        } else if (errorStr.includes('items') || errorStr.includes('cart')) {
+          errorTitle = 'Cart Error';
+          errorMessage = 'There was an issue with your cart items. Please refresh and try again.';
+        } else if (errorStr.includes('user') || errorStr.includes('auth')) {
+          errorTitle = 'Authentication Error';
+          errorMessage = 'Please log in again and try placing your order.';
+        } else {
+          errorTitle = 'Order Error';
+          errorMessage = `Order creation failed: ${error.message}`;
         }
-      ]
-    );
+      }
+      
+      // Log detailed error information for debugging
+      console.error('❌ Detailed error info:', {
+        error: error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+        orderData: {
+          itemsCount: items.length,
+          total,
+          deliveryAddressId: deliveryAddress.id,
+          userId: user?.id,
+          deliveryTime: selectedDeliveryTime.label
+        }
+      });
+      
+      Alert.alert(
+        errorTitle,
+        errorMessage,
+        [
+          { text: 'OK' },
+          { 
+            text: 'Retry', 
+            onPress: () => {
+              // Allow user to retry the order
+              handleConfirmOrder();
+            }
+          }
+        ]
+      );
+    }
   };
 
   const OrderConfirmModal = () => (

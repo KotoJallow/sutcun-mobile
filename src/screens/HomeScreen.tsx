@@ -7,13 +7,21 @@ import CategoryList from '../components/CategoryList';
 import ProductList from '../components/ProductList';
 import colors from '../constants/colors';
 import { RootState } from '../redux/store';
-import { getDefaultProducts } from '../constants/dummyData';
+import { useCategories, useProducts } from '../hooks/useApi';
 
 const HomeScreen = ({ navigation }: any) => {
   const { addresses, address } = useSelector((state: RootState) => state.user);
   const [selectedCategory, setSelectedCategory] = useState<string>('Dairy');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
   const [currentLocation, setCurrentLocation] = useState<{district: string, neighborhood: string} | null>(null);
+  
+  // Firebase hooks
+  const { data: categories, loading: categoriesLoading } = useCategories();
+  const { data: products, loading: productsLoading } = useProducts({
+    district: currentLocation?.district,
+    neighborhood: currentLocation?.neighborhood,
+    categoryId: selectedCategoryId
+  });
   
   const sliderImages = [
     'https://picsum.photos/200/300',
@@ -72,13 +80,17 @@ const HomeScreen = ({ navigation }: any) => {
           onPress={handleSliderPress}
         />
         <CategoryList
+          categories={categories || []}
           selectedCategory={selectedCategory}
           onSelectCategory={handleCategorySelect}
+          loading={categoriesLoading}
         />
         <ProductList 
+          products={products || []}
           selectedCategoryId={selectedCategoryId} 
           district={currentLocation?.district}
           neighborhood={currentLocation?.neighborhood}
+          loading={productsLoading}
         />
       </ScrollView>
     </View>

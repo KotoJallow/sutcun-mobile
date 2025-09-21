@@ -101,11 +101,14 @@ export function useMutation<T, P>(
     try {
       setLoading(true);
       setError(null);
+      console.log('🔄 useMutation: Calling mutation function with params:', params);
       const result = await mutationFn(params);
+      console.log('✅ useMutation: Mutation successful, result:', result);
       setData(result);
       return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      console.error('❌ useMutation: Mutation failed:', errorMessage);
       setError(errorMessage);
       throw err;
     } finally {
@@ -128,4 +131,20 @@ export function useCreateOrder() {
 
 export function useAddAddress() {
   return useMutation(dataService.addUserAddress);
+}
+
+export function useDeleteAddress() {
+  return useMutation(dataService.deleteUserAddress);
+}
+
+export function useCategories() {
+  return useApi(() => dataService.getCategories());
+}
+
+export function useUserProfile(userId: string) {
+  return useApi(() => dataService.getUserProfile(userId), [userId]);
+}
+
+export function useUpdateUserProfile() {
+  return useMutation(dataService.updateUserProfile);
 }

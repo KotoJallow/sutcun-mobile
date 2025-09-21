@@ -17,13 +17,18 @@ import { istanbulDistricts } from '../constants/districts';
 import colors from '../constants/colors';
 import { basakDistrict } from '../constants/districts';
 import { beylikDistrict } from '../constants/districts';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { dataService } from '../services/dataService';
 import { addAddress } from '../redux/userSlice';
+import { db } from '../firebase/firebaseConfig';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { RootState } from '../redux/store';
 
 type AddressType = 'ev' | 'iş' | 'diğer';
 
 const AddAddressScreen = ({ navigation } : any) => {
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user);
   const [neighborhood, setNeighborhood] = useState('');
   const [showNeighborhoodModal, setShowNeighborhoodModal] = useState(false);
   const [street, setStreet] = useState('');
@@ -68,25 +73,51 @@ const AddAddressScreen = ({ navigation } : any) => {
     return true;
   };
 
-  const handleSaveAddress = () => {
+  const handleSaveAddress = async () => {
     if (!validateForm()) return;
 
-    const newAddress = {
-      id: Date.now().toString(),
-      title: title.trim(),
-      district,
-      neighborhood,
-      street: street.trim(),
-      buildingNo: buildingNo.trim(),
-      floor: floor.trim(),
-      apartmentNo: apartmentNo.trim(),
-      description: description.trim(),
-      icon: addressType === 'ev' ? 'home' : addressType === 'iş' ? 'briefcase' : 'map-marker',
-      isDefault: false,
-    };
+    // Require an authenticated/created user with an id
+    if (!user?.id) {
+      Alert.alert('Error', 'User not found. Please complete registration or login before adding an address.');
+      return;
+    }
 
-    dispatch(addAddress(newAddress));
-    navigation.goBack();
+    try {
+      // Create address object (client-side serializable fields)
+      const newAddress = {
+        title: title.trim(),
+        district,
+        neighborhood,
+        street: street.trim(),
+        buildingNo: buildingNo.trim(),
+        floor: floor.trim(),
+        apartmentNo: apartmentNo.trim(),
+        description: description.trim(),
+        icon: addressType === 'ev' ? 'home' : addressType === 'iş' ? 'briefcase' : 'map-marker',
+        isDefault: false
+      };
+
+      console.log('📍 Adding address for userId:', user.id);
+      // Use dataService to add address so serverTimestamp is used and cache cleared
+      const created = await dataService.addUserAddress(newAddress, user.id);
+
+      if (!created) {
+        throw new Error('Address creation failed');
+      }
+
+      // Ensure the returned address is serializable and contains id
+      const addressForRedux = {
+        id: created.id,
+        ...newAddress,
+      };
+
+      dispatch(addAddress(addressForRedux));
+      navigation.goBack();
+
+    } catch (error) {
+      console.error('❌ Error saving address to Firestore:', error);
+      Alert.alert('Error', 'Failed to save address. Please try again.');
+    }
   };
 
    const getNeighborhoodList = () => {

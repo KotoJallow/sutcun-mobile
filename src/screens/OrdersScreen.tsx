@@ -9,11 +9,9 @@ import ErrorMessage from '../components/ErrorMessage';
 import { useOrders } from '../hooks/useApi';
 
 export default function OrdersScreen({ navigation, route }: any) {
-	const { data: apiOrders, loading, error, refetch } = useOrders();
-	const { orders: localOrders } = useSelector((state: RootState) => state.orders);
+	const { data: orders, loading, error, refetch } = useOrders();
 	
-	// Use API orders if available, otherwise fall back to local Redux orders
-	const orders = apiOrders || localOrders;
+	console.log('📋 OrdersScreen - Orders:', orders?.length || 0, 'Loading:', loading, 'Error:', error);
 
 	const formatOrderDate = (dateString: string) => {
 		const date = new Date(dateString);
