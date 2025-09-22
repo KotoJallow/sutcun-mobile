@@ -11,7 +11,7 @@ import Colors from '../constants/colors';
 import { RootState } from '../redux/store';
 import { increment, decrement, clearCart, removeFromCart } from '../redux/cartSlice';
 import { DeliveryTimeSlot } from '../constants/deliveryTimes';
-import { createOrder, clearCurrentOrder } from '../redux/orderSlice';
+import { createOrder, clearCurrentOrder, addOrderFromFirestore } from '../redux/orderSlice';
 import { useCreateOrder, useDeliverySlots } from '../hooks/useApi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { simpleDataService } from '../services/dataServiceSimple';
@@ -151,6 +151,7 @@ const CartScreen = ({ navigation }: any) => {
       // Try to create order using simplified service
       console.log('📞 Calling simpleDataService.createOrder...');
       const apiOrder = await simpleDataService.createOrder({
+        userId: user.id, // Include userId
         items,
         total,
         deliveryAddress,
@@ -160,8 +161,11 @@ const CartScreen = ({ navigation }: any) => {
       console.log('✅ Simple order created:', apiOrder);
 
       if (apiOrder) {
-        // Order is already saved to Firestore, no need to dispatch to Redux
+        // Order is already saved to Firestore, add to Redux for viewing
         console.log('✅ Order saved to Firestore successfully');
+        
+        // Add order to Redux state so user can see it in Orders screen
+        dispatch(addOrderFromFirestore(apiOrder));
         
         // Success flow
         setShowOrderConfirmModal(false);

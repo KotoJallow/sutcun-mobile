@@ -7,6 +7,7 @@ export interface Order {
   orderNumber: string;
   date: string;
   status: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled';
+  userId: string; // Connection to user
   items: CartItem[];
   total: number;
   deliveryAddress: {
@@ -44,19 +45,21 @@ const orderSlice = createSlice({
   initialState,
   reducers: {
     createOrder: (state, action: PayloadAction<{
+      userId: string;
       items: CartItem[];
       total: number;
       deliveryAddress: Order['deliveryAddress'];
       deliveryTime: DeliveryTimeSlot;
       paymentMethod: Order['paymentMethod'];
     }>) => {
-      const { items, total, deliveryAddress, deliveryTime, paymentMethod } = action.payload;
+      const { userId, items, total, deliveryAddress, deliveryTime, paymentMethod } = action.payload;
       
       const newOrder: Order = {
         id: Date.now().toString(),
         orderNumber: generateOrderNumber(),
         date: new Date().toISOString(),
         status: 'pending',
+        userId, // Include userId
         items: [...items],
         total,
         deliveryAddress,
@@ -91,8 +94,38 @@ const orderSlice = createSlice({
     clearCurrentOrder: (state) => {
       state.currentOrder = null;
     },
+    addOrder: (state, action: PayloadAction<Order>) => {
+      // Add order from Firestore to Redux state
+      const existingOrder = state.orders.find(order => order.id === action.payload.id);
+      if (!existingOrder) {
+        state.orders.unshift(action.payload);
+        console.log('✅ Order added to Redux:', action.payload.id);
+      }
+    },
+    setOrders: (state, action: PayloadAction<Order[]>) => {
+      // Set all orders from Firestore
+      state.orders = action.payload;
+      console.log('✅ Orders set in Redux:', action.payload.length, 'orders');
+    },
+    addOrderFromFirestore: (state, action: PayloadAction<Order>) => {
+      // Add order created in Firestore to Redux
+      const existingOrder = state.orders.find(order => order.id === action.payload.id);
+      if (!existingOrder) {
+        state.orders.unshift(action.payload);
+        state.currentOrder = action.payload;
+        console.log('✅ Order from Firestore added to Redux:', action.payload.id);
+      }
+    },
   },
 });
 
-export const { createOrder, updateOrderStatus, cancelOrder, clearCurrentOrder } = orderSlice.actions;
+export const { 
+  createOrder, 
+  updateOrderStatus, 
+  cancelOrder, 
+  clearCurrentOrder, 
+  addOrder, 
+  setOrders, 
+  addOrderFromFirestore 
+} = orderSlice.actions;
 export default orderSlice.reducer;

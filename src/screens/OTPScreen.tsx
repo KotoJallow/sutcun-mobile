@@ -23,6 +23,7 @@ import { RootState } from '../redux/store';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { dataService } from '../services/dataService';
 import { simpleDataService } from '../services/dataServiceSimple';
+import { setOrders } from '../redux/orderSlice';
 
 const CELL_COUNT = 6;
 
@@ -67,65 +68,63 @@ export default function OTPScreen({ route, navigation }: any) {
       console.warn('No phone number provided to loadUserDataFromFirestore');
       return false;
     }
+    
     try {
-      console.log('🔍 Checking if user exists in Firestore for phone:', phoneNumber);
+      // Use phone number as entered by user (no normalization)
+      const phoneToSearch = phoneNumber.trim();
       
-      // Find user by phone number in Firestore
+      console.log('🔍 [OTP] Searching for user with phone:', phoneToSearch);
+      
+      // First, check if user exists (simple check)
       const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('phone', '==', phoneNumber));
+      const q = query(usersRef, where('phone', '==', phoneToSearch));
       const userSnapshot = await getDocs(q);
       
       if (!userSnapshot.empty) {
-        const userDoc = userSnapshot.docs[0];
-        const userData = userDoc.data();
-        const { createdAt, updatedAt, ...cleanUserData } = userData;
-
-        // Convert any Firestore Timestamp fields to ISO strings (safe for Redux)
-        const serializeDates = (obj: any) => {
-          const out: any = {};
-          for (const key of Object.keys(obj)) {
-            const val = (obj as any)[key];
-            if (val && typeof val.toDate === 'function') {
-              try {
-                out[key] = val.toDate().toISOString();
-              } catch (e) {
-                out[key] = val;
-              }
-            } else {
-              out[key] = val;
-            }
+        // ✅ USER EXISTS - Load complete user data
+        console.log('✅ [OTP] User exists, loading complete data');
+        
+        const completeUserData = await simpleDataService.loadCompleteUserData(phoneToSearch);
+        
+        if (completeUserData) {
+          const { user: userData, addresses, orders } = completeUserData;
+          
+          console.log('✅ [OTP] Complete user data loaded:', {
+            userId: userData.id,
+            addressesCount: addresses.length,
+            ordersCount: orders.length
+          });
+          
+          // Update Redux with complete user data
+          dispatch(setUser({
+            id: userData.id,
+            ...userData,
+            isVerified: true,
+          }));
+          
+          // Set all addresses in Redux
+          dispatch(setAddresses(addresses));
+          
+          // Set all orders in Redux
+          dispatch(setOrders(orders));
+          
+          // Ensure user has default empty address if no addresses exist
+          if (addresses.length === 0) {
+            console.log('🏠 [OTP] No addresses found, ensuring default empty address');
+            await simpleDataService.ensureDefaultEmptyAddress(userData.id);
           }
-          return out;
-        };
-
-        const serializableUserData = serializeDates(cleanUserData);
-
-        console.log('✅ Found existing user in Firestore:', userDoc.id);
-        console.log('👤 User data from Firestore:', serializableUserData);
-
-        // Update Redux with complete user data (serializable)
-        dispatch(setUser({
-          id: userDoc.id,
-          ...serializableUserData,
-          isVerified: true,
-        }));
-        
-        // Load user addresses using simplified service
-        console.log('📍 Loading addresses for userId:', userDoc.id);
-        const addresses = await simpleDataService.getUserAddresses(userDoc.id);
-        console.log('📍 Loaded user addresses:', addresses.length);
-        
-        // Set all addresses in Redux (replaces existing ones)
-        dispatch(setAddresses(addresses));
-        
-        console.log('✅ Existing user data loaded successfully');
-        return true; // User exists
+          
+          console.log('✅ [OTP] Existing user data loaded successfully');
+          return true; // User exists
+        }
       }
       
-      console.log('❌ No existing user found in Firestore');
+      // ❌ USER DOESN'T EXIST - Do normal flow (no comprehensive loading)
+      console.log('❌ [OTP] No existing user found, proceeding with normal flow');
       return false; // User doesn't exist
+      
     } catch (error) {
-      console.error('❌ Error checking/loading user data:', error);
+      console.error('❌ [OTP] Error checking user existence:', error);
       return false;
     }
   };
@@ -144,7 +143,14 @@ export default function OTPScreen({ route, navigation }: any) {
       dispatch(setUser({ ...user, isVerified: true }));
       
       // ALWAYS check if user exists in Firestore first (regardless of registration flag)
-  const userExists = await loadUserDataFromFirestore(user.phone);
+      console.log('🔍 [OTP] User state phone:', user.phone);
+      console.log('🔍 [OTP] Route params phone:', phone);
+      
+      // Use route params phone if user.phone is null/undefined
+      const phoneToCheck = user.phone || phone;
+      console.log('🔍 [OTP] Phone to check:', phoneToCheck);
+      
+      const userExists = await loadUserDataFromFirestore(phoneToCheck);
       
       if (userExists) {
         // User exists - data already loaded, go to main
@@ -155,14 +161,20 @@ export default function OTPScreen({ route, navigation }: any) {
         if (isRegistration) {
           try {
             console.log('🆕 Creating new user in Firestore');
+            
+            // Use phone number as entered by user (no normalization)
+            const phoneToStore = phone.trim();
+            
             const userDoc = await addDoc(collection(db, 'users'), {
               name: user.name,
               surname: user.surname,
-              phone: user.phone,
+              phone: phoneToStore,
               gender: user.gender,
               age: user.age,
               isVerified: true,
               address: null,
+              addressId: null, // No primary address yet
+              addresses: [], // Empty addresses array
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp()
             });
@@ -170,7 +182,18 @@ export default function OTPScreen({ route, navigation }: any) {
             console.log('✅ New user saved to Firestore:', userDoc.id);
 
             // Update Redux with Firestore user ID and serializable timestamps
-            dispatch(setUser({ ...user, id: userDoc.id, isVerified: true }));
+            dispatch(setUser({ 
+              ...user, 
+              id: userDoc.id, 
+              phone: phoneToStore,
+              isVerified: true,
+              addressId: null,
+              addresses: []
+            }));
+            
+            // Create default empty address for new user
+            console.log('🏠 Creating default empty address for new user');
+            await simpleDataService.ensureDefaultEmptyAddress(userDoc.id);
             
             // Show welcome message and go to main
             Alert.alert(

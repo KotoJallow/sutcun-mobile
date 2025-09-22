@@ -269,6 +269,7 @@ class DataService {
 
   // Order Services
   async createOrder(orderData: {
+    userId: string;
     items: CartItem[];
     total: number;
     deliveryAddress: Order['deliveryAddress'];
@@ -333,6 +334,7 @@ class DataService {
         const orderDoc = await addDoc(ordersRef, {
           orderNumber: `ORD-${Date.now().toString().slice(-6)}`,
           status: 'pending',
+          userId: orderData.userId,
           items: cleanItems,
           total: orderData.total,
           deliveryAddress: serializableDeliveryAddress,
@@ -349,6 +351,7 @@ class DataService {
           orderNumber: `ORD-${Date.now().toString().slice(-6)}`,
           date: new Date().toISOString(),
           status: 'pending',
+          userId: orderData.userId,
           items: cleanItems, // Use cleaned items instead of original
           total: orderData.total,
           deliveryAddress: serializableDeliveryAddress, // Use serialized address

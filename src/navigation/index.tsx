@@ -19,9 +19,9 @@ export default function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {/* Auth screens */}
+      <Stack.Screen name="Welcome" component={WelcomeScreen} /> 
       <Stack.Screen name="login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} /> 
-      <Stack.Screen name="Welcome" component={WelcomeScreen} /> 
       <Stack.Screen name="OTP" component={OTPScreen} />
       <Stack.Screen name="Main" component={BottomTabs} />
       <Stack.Screen 

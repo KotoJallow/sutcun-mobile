@@ -37,9 +37,10 @@ export interface UserState {
   phone: string | null;
   isVerified: boolean;
   address: string | null;
+  addressId: string | null; // Primary address ID
   gender: string | null;
   age: number | null;
-  addresses: Address[];
+  addresses: Address[]; // Array of all user addresses
 }
 
 export type User = Partial<UserState>;
@@ -65,9 +66,10 @@ const initialState: UserState = {
   phone: null,
   isVerified: false,
   address: null,
+  addressId: null, // Primary address ID
   gender: null,
   age: null,
-  addresses: [],
+  addresses: [], // Empty array as default
 };
 
 const userSlice = createSlice({
@@ -97,6 +99,7 @@ const userSlice = createSlice({
       state.addresses.push(newAddress);
       if (newAddress.isDefault) {
         state.address = `${newAddress.district}/${newAddress.neighborhood}`;
+        state.addressId = newAddress.id;
       }
     },
     setDefaultAddress(state, action: PayloadAction<string>) {
@@ -104,6 +107,7 @@ const userSlice = createSlice({
       const defaultAddr = state.addresses.find(addr => addr.id === action.payload);
       if (defaultAddr) {
         state.address = `${defaultAddr.district}/${defaultAddr.neighborhood}`;
+        state.addressId = defaultAddr.id;
       }
     },
     removeAddress(state, action: PayloadAction<string>) {
@@ -111,8 +115,10 @@ const userSlice = createSlice({
       if (state.addresses.length > 0 && !state.addresses.some(addr => addr.isDefault)) {
         state.addresses[0].isDefault = true;
         state.address = `${state.addresses[0].district}/${state.addresses[0].neighborhood}`;
+        state.addressId = state.addresses[0].id;
       } else if (state.addresses.length === 0) {
         state.address = null;
+        state.addressId = null;
       }
     },
     setAddresses(state, action: PayloadAction<Address[]>) {
@@ -125,16 +131,19 @@ const userSlice = createSlice({
       console.log('🔄 Cleaned addresses:', cleanedAddresses);
       
       state.addresses = cleanedAddresses;
-      // Update default address display
+      // Update default address display and addressId
       const defaultAddr = cleanedAddresses.find(addr => addr.isDefault);
       if (defaultAddr) {
         state.address = `${defaultAddr.district}/${defaultAddr.neighborhood}`;
+        state.addressId = defaultAddr.id;
       } else if (cleanedAddresses.length > 0) {
         // If no default set, make first one default
         state.addresses[0].isDefault = true;
         state.address = `${state.addresses[0].district}/${state.addresses[0].neighborhood}`;
+        state.addressId = state.addresses[0].id;
       } else {
         state.address = null;
+        state.addressId = null;
       }
     },
     logout(state) {
