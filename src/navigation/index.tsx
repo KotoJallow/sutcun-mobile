@@ -9,7 +9,10 @@ import OTPScreen from '../screens/OTPScreen';
 import AddressManagementScreen from '../screens/AddressManagementScreen';
 import CartScreen from '../screens/CartScreen';
 import AddAddressScreen from '../screens/AddAddressScreen';
+import PaymentMethodsScreen from '../screens/PaymentMethodsScreen';
+import ContactSupportScreen from '../screens/ContactSupportScreen';
 import colors from '../constants/colors';
+import AppSettingsScreen from '../screens/AppSettingsScreen';
 
 
 
@@ -37,6 +40,9 @@ export default function RootNavigator() {
         component={AddAddressScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} />
+      <Stack.Screen name="Support" component={ContactSupportScreen} />
+      <Stack.Screen name="Settings" component={AppSettingsScreen} />
     </Stack.Navigator>
   );
 }
