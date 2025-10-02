@@ -11,6 +11,7 @@ import {
   FlatList,
   Platform,
   Alert,
+  Linking,
 } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
@@ -22,6 +23,7 @@ import colors from "../constants/colors";
 import CustomToolbar from "../components/CustomToolbar";
 import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/userSlice';
+import Strings from '../constants/strings';
 
 const RegisterScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
@@ -35,10 +37,8 @@ const RegisterScreen = ({ navigation }: any) => {
   const [genderModalVisible, setGenderModalVisible] = useState(false);
 
   const genderOptions = [
-    { label: "Male", value: "male" },
-    { label: "Female", value: "female" },
-    { label: "Other", value: "other" },
-    { label: "Prefer not to say", value: "prefer_not_to_say" },
+    { label: Strings.male, value: "male" },
+    { label: Strings.female, value: "female" },
   ];
 
   const selectGender = (value: string, label: string) => {
@@ -63,7 +63,7 @@ const RegisterScreen = ({ navigation }: any) => {
         day: 'numeric'
       });
     }
-    return "Select your birth date";
+    return Strings.selectBirthDate;
   };
 
   const showDatePickerModal = () => {
@@ -72,19 +72,19 @@ const RegisterScreen = ({ navigation }: any) => {
 
   const validateForm = () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter your first name');
+      Alert.alert('Hata', Strings.errorEnterName);
       return false;
     }
     if (!surname.trim()) {
-      Alert.alert('Error', 'Please enter your last name');
+      Alert.alert('Hata', Strings.errorEnterSurname);
       return false;
     }
     if (!phone.trim() || phone.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number');
+      Alert.alert('Hata', Strings.errorEnterValidPhone);
       return false;
     }
     if (!agreed) {
-      Alert.alert('Error', 'Please agree to the Terms of Service and Privacy Policy');
+      Alert.alert('Hata', Strings.errorAcceptTerms);
       return false;
     }
     return true;
@@ -110,22 +110,30 @@ const RegisterScreen = ({ navigation }: any) => {
     });
   };
 
+  const handleTermsPress = () => {
+    Linking.openURL('https://www.google.com'); // Terms sayfası URL'i
+  };
+
+  const handlePrivacyPress = () => {
+    Linking.openURL('https://www.google.com'); // Privacy policy URL'i
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.white }}>
       <CustomToolbar
-        title="Register"
+        title={Strings.register}
         showBack={true}
         onBackPress={() => navigation.goBack()}
       />
       <ScrollView contentContainerStyle={styles.container}>
-        {/*  Name */}
+        {/* Name */}
         <Text style={styles.labelName}>
-          Full Name <Text style={styles.required}>*</Text>
+          {Strings.fullName} <Text style={styles.required}>{Strings.required}</Text>
         </Text>
         <View style={styles.modernInputWrapper}>
           <TextInput
             style={styles.modernInput}
-            placeholder="Full Name"
+            placeholder={Strings.fullName}
             value={name}
             onChangeText={setName}
             placeholderTextColor="#9CA3AF"
@@ -134,21 +142,21 @@ const RegisterScreen = ({ navigation }: any) => {
 
         {/* Surname */}
         <Text style={styles.label}>
-          Surname <Text style={styles.required}>*</Text>
+          {Strings.surname} <Text style={styles.required}>{Strings.required}</Text>
         </Text>
         <View style={styles.modernInputWrapper}>
           <TextInput
             style={styles.modernInput}
-            placeholder="Surname"
+            placeholder={Strings.surname}
             value={surname}
             onChangeText={setSurname}
             placeholderTextColor="#9CA3AF"
           />
         </View>
 
-        {/* Phone Number */}
+        {/* Phone */}
         <Text style={styles.labelPhone}>
-          Phone Number <Text style={styles.required}>*</Text>
+          {Strings.phoneNumber} <Text style={styles.required}>{Strings.required}</Text>
         </Text>
         <View style={styles.modernInputWrapper}>
           <View style={styles.phoneContainer}>
@@ -163,13 +171,11 @@ const RegisterScreen = ({ navigation }: any) => {
             />
           </View>
         </View>
-        <Text style={styles.note}>
-          We'll send a verification code to this number
-        </Text>
+        <Text style={styles.note}>{Strings.verificationMessage}</Text>
 
         {/* Gender */}
         <Text style={styles.label}>
-          Gender <Text style={styles.optional}>(optional)</Text>
+          {Strings.gender} <Text style={styles.optional}>{Strings.optional}</Text>
         </Text>
         <TouchableOpacity 
           style={styles.modernInputWrapper}
@@ -182,7 +188,7 @@ const RegisterScreen = ({ navigation }: any) => {
               color="#9CA3AF"
             />
             <Text style={[styles.modernInputWithIcon, { color: gender ? "#111827" : "#9CA3AF" }]}>
-              {gender || "Select your gender"}
+              {gender || Strings.selectGender}
             </Text>
             <Feather name="chevron-down" size={20} color="#9CA3AF" />
           </View>
@@ -190,7 +196,7 @@ const RegisterScreen = ({ navigation }: any) => {
 
         {/* Birth Date */}
         <Text style={styles.label}>
-          Birth Date <Text style={styles.optional}>(optional)</Text>
+          {Strings.birthDate} <Text style={styles.optional}>{Strings.optional}</Text>
         </Text>
         <TouchableOpacity 
           style={styles.modernInputWrapper}
@@ -216,93 +222,100 @@ const RegisterScreen = ({ navigation }: any) => {
             thumbColor={agreed ? "#fff" : "#f4f3f4"}
           />
           <Text style={styles.checkboxLabel}>
-            I agree to the Terms of Service and Privacy Policy
+            <Text onPress={handleTermsPress} style={styles.link}>
+              {Strings.termsService}
+            </Text>
+            {" "}{Strings.and}{" "}
+            <Text onPress={handlePrivacyPress} style={styles.link}>
+              {Strings.privacyPolicy}
+            </Text>
+            {" "}{Strings.acceptTerms}
           </Text>
         </View>
 
         {/* Create Account Button */}
         <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
-          <Text style={styles.buttonText}>Create Account</Text>
+          <Text style={styles.buttonText}>{Strings.createAccount}</Text>
         </TouchableOpacity>
-      </ScrollView>
 
-      {/* Gender Modal */}
-      <Modal
-        visible={genderModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setGenderModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Gender</Text>
-              <TouchableOpacity onPress={() => setGenderModalVisible(false)}>
-                <Feather name="x" size={24} color="#111827" />
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={genderOptions}
-              keyExtractor={(item) => item.value}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.modalItem}
-                  onPress={() => selectGender(item.value, item.label)}
-                >
-                  <Text style={styles.modalItemText}>{item.label}</Text>
-                  {gender === item.label && (
-                    <Feather name="check" size={20} color="#14b8a6" />
-                  )}
+        {/* Gender Modal */}
+        <Modal
+          visible={genderModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setGenderModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{Strings.selectGenderTitle}</Text>
+                <TouchableOpacity onPress={() => setGenderModalVisible(false)}>
+                  <Feather name="x" size={24} color="#111827" />
                 </TouchableOpacity>
-              )}
-            />
-          </View>
-        </View>
-      </Modal>
-
-      {/* Native DatePicker */}
-      {showDatePicker && (
-        <>
-          {Platform.OS === 'ios' ? (
-            <Modal
-              transparent={true}
-              animationType="fade"
-              visible={showDatePicker}
-              onRequestClose={() => setShowDatePicker(false)}
-            >
-              <View style={styles.datePickerModalOverlay}>
-                <TouchableOpacity 
-                  style={styles.datePickerModalBackdrop}
-                  onPress={() => setShowDatePicker(false)}
-                  activeOpacity={1}
-                />
-                <View style={styles.datePickerModalContent}>
-                  <DateTimePicker
-                    testID="dateTimePicker"
-                    value={birthDate || new Date()}
-                    mode="date"
-                    is24Hour={true}
-                    display="spinner"
-                    onChange={onDateChange}
-                    maximumDate={new Date()}
-                    style={styles.datePickerIOS}
-                  />
-                </View>
               </View>
-            </Modal>
-          ) : (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={birthDate || new Date()}
-              mode="date"
-              is24Hour={true}
-              display="default"
-              onChange={onDateChange}
-              maximumDate={new Date()}
-            />
-          )}
-        </>
-      )}
+              <FlatList
+                data={genderOptions}
+                keyExtractor={(item) => item.value}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.modalItem}
+                    onPress={() => selectGender(item.value, item.label)}
+                  >
+                    <Text style={styles.modalItemText}>{item.label}</Text>
+                    {gender === item.label && (
+                      <Feather name="check" size={20} color="#14b8a6" />
+                    )}
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+        </Modal>
+
+        {/* Native DatePicker */}
+        {showDatePicker && (
+          <>
+            {Platform.OS === 'ios' ? (
+              <Modal
+                transparent={true}
+                animationType="fade"
+                visible={showDatePicker}
+                onRequestClose={() => setShowDatePicker(false)}
+              >
+                <View style={styles.datePickerModalOverlay}>
+                  <TouchableOpacity 
+                    style={styles.datePickerModalBackdrop}
+                    onPress={() => setShowDatePicker(false)}
+                    activeOpacity={1}
+                  />
+                  <View style={styles.datePickerModalContent}>
+                    <DateTimePicker
+                      testID="dateTimePicker"
+                      value={birthDate || new Date()}
+                      mode="date"
+                      is24Hour={true}
+                      display="spinner"
+                      onChange={onDateChange}
+                      maximumDate={new Date()}
+                      style={styles.datePickerIOS}
+                    />
+                  </View>
+                </View>
+              </Modal>
+            ) : (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={birthDate || new Date()}
+                mode="date"
+                is24Hour={true}
+                display="default"
+                onChange={onDateChange}
+                maximumDate={new Date()}
+              />
+            )}
+          </>
+        )}
+      </ScrollView>
     </View>
   );
 };
@@ -332,6 +345,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     marginTop: 12,
+    marginBottom: 4,
     color: "#111827",
   },
   required: {
@@ -571,6 +585,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     alignSelf: 'center',
     width: '100%',
+  },
+  link: {
+    color: "#0ea5e9",
+    textDecorationLine: "underline",
   },
 });
 
