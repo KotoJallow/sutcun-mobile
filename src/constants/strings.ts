@@ -4,6 +4,7 @@ export default {
   ordersTitle: 'Siparişlerim',
   accountTitle: 'Hesabım',
   addressManagement: 'Adres Yönetimi',
+  login: "Giriş Yap",
 
   // Button Texts
   addToCart: 'Sepete Ekle',
@@ -12,7 +13,7 @@ export default {
   cancel: 'İptal',
 
   // Messages
-  welcomeMessage: 'Hoş Geldiniz',
+  welcomeMessage: "Sütçün'e Hoş Geldiniz",
   emptyCart: 'Sepetiniz boş',
   orderSuccess: 'Siparişiniz başarıyla alındı',
 
@@ -23,4 +24,18 @@ export default {
   // Placeholders
   searchPlaceholder: 'Ürün ara...',
   emailPlaceholder: 'E-posta adresiniz',
+
+  // Additional Translations
+  freshDairy: "Taze süt ürünleri kapınızda",
+  //loginOrSignUp: "Giriş Yap veya Kayıt Ol",
+  enterPhone: "Giriş yapmak için telefon numaranızı giriniz",
+  phoneNumber: "Telefon Numarası",
+  continue: "Devam Et",
+  verificationNote: "Bu numaraya doğrulama kodu göndereceğiz",
+  termsText: "Devam ederek",
+  termsService: "Kullanım Koşullarını",
+  and: "ve",
+  privacyPolicy: "Gizlilik Politikasını",
+  acceptTerms: "kabul etmiş olursunuz",
+  enterValidPhone: "Lütfen geçerli bir telefon numarası girin"
 };

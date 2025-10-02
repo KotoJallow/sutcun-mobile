@@ -7,72 +7,106 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from "react-native";
 import colors from "../constants/colors";
+import CustomToolbar from "../components/CustomToolbar";
+import Strings from '../constants/strings';
 
 const LoginScreen = ({ navigation }: any) => {
   const [phone, setPhone] = useState("");
 
+  // Phone input handler to remove +90 if user tries to enter it
+  const handlePhoneChange = (text: string) => {
+    // Remove any non-numeric characters
+    const numericOnly = text.replace(/[^0-9]/g, '');
+    setPhone(numericOnly);
+  };
+
+  const handleTermsPress = () => {
+    Linking.openURL('https://www.google.com'); // Terms of service URL'ini buraya ekleyin
+  };
+
+  const handlePrivacyPress = () => {
+    Linking.openURL('https://www.google.com'); // Privacy policy URL'ini buraya ekleyin
+  };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
-    >
-      {/* Logo placeholder */}
-      <View style={styles.logoContainer}>
-        <View style={styles.logoCircle}>
-          <Text style={styles.logoText}>🥛</Text>
-        </View>
-      </View>
-
-      {/* Welcome */}
-      <Text style={styles.title}>Welcome to Sütçün</Text>
-      <Text style={styles.subtitle}>Fresh dairy at your doorstep</Text>
-
-      {/* Auth Header */}
-      <Text style={styles.sectionTitle}>Login or Sign Up</Text>
-      <Text style={styles.sectionSubtitle}>
-        Enter your phone number to continue
-      </Text>
-
-      {/* Phone Input */}
-      <Text style={styles.label}>Phone Number</Text>
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.input}
-          placeholder="+90 5XX XXX XX XX"
-          keyboardType="phone-pad"
-          value={phone}
-          onChangeText={setPhone}
-        />
-      </View>
-
-      {/* Continue Button */}
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          if (phone.trim()) {
-            navigation.navigate("OTP", { phone });
-          } else {
-            alert("Please enter a valid phone number");
-          }
-        }}
+    <View style={{ flex: 1, backgroundColor: colors.white }}>
+      <CustomToolbar
+        title={Strings.login}
+        showBack={true}
+        onBackPress={() => navigation.goBack()}
+      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.container}
       >
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
+        {/* Logo placeholder */}
+        <View style={styles.logoContainer}>
+          <View style={styles.logoCircle}>
+            <Text style={styles.logoText}>🥛</Text>
+          </View>
+        </View>
 
-      {/* Info Note */}
-      <Text style={styles.note}>
-        We'll send a verification code to this number
-      </Text>
+        {/* Welcome */}
+        <Text style={styles.title}>{Strings.welcomeMessage}</Text>
+        <Text style={styles.subtitle}>{Strings.freshDairy}</Text>
 
-      {/* Terms */}
-      <Text style={styles.terms}>
-        By continuing, you agree to our{" "}
-        <Text style={styles.link}>Terms of Service</Text> and{" "}
-        <Text style={styles.link}>Privacy Policy</Text>
-      </Text>
-    </KeyboardAvoidingView>
+        {/* Auth Header */}
+        <Text style={styles.sectionSubtitle}>
+          {Strings.enterPhone}
+        </Text>
+
+        {/* Phone Input */}
+        <Text style={styles.label}>{Strings.phoneNumber}</Text>
+        <View style={styles.inputWrapper}>
+          <View style={styles.phoneInputContainer}>
+            <Text style={styles.prefixText}>+90</Text>
+            <TextInput
+              style={styles.phoneInput}
+              placeholder="5XX XXX XX XX"
+              keyboardType="phone-pad"
+              value={phone}
+              onChangeText={handlePhoneChange}
+              maxLength={10}
+            />
+          </View>
+        </View>
+
+        {/* Continue Button */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            if (phone.trim()) {
+              // phone numarasının başına +90 ekleyerek gönder
+              const fullPhoneNumber = `+90${phone}`;
+              navigation.navigate("OTP", { phone: fullPhoneNumber });
+            } else {
+              alert(Strings.enterValidPhone);
+            }
+          }}
+        >
+          <Text style={styles.buttonText}>{Strings.continue}</Text>
+        </TouchableOpacity>
+
+        {/* Info Note */}
+        <Text style={styles.note}>
+          {Strings.verificationNote}
+        </Text>
+
+        {/* Terms */}
+        <Text style={styles.terms}>
+          {Strings.termsText}{" "}
+          <Text style={styles.link} onPress={handleTermsPress}>
+            {Strings.termsService}
+          </Text> {Strings.and}{" "}
+          <Text style={styles.link} onPress={handlePrivacyPress}>
+            {Strings.privacyPolicy}
+          </Text> {Strings.acceptTerms}
+        </Text>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -121,7 +155,8 @@ const styles = StyleSheet.create({
   sectionSubtitle: {
     fontSize: 13,
     color: "#6b7280",
-    marginBottom: 20,
+    marginTop: 20,
+    marginBottom: 15,
   },
   label: {
     fontSize: 14,
@@ -138,9 +173,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginBottom: 20,
   },
-  input: {
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  prefixText: {
     fontSize: 15,
-    color: "#111827",
+    color: '#111827',
+    marginRight: 8,
+    fontWeight: '500',
+  },
+  phoneInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#111827',
   },
   button: {
     backgroundColor: "#14b8a6",
