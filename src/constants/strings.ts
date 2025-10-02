@@ -60,5 +60,10 @@ export default {
   errorEnterName: "Lütfen adınızı girin",
   errorEnterSurname: "Lütfen soyadınızı girin",
   errorEnterValidPhone: "Lütfen geçerli bir telefon numarası girin",
-  errorAcceptTerms: "Lütfen kullanım koşullarını ve gizlilik politikasını kabul edin"
+  errorAcceptTerms: "Lütfen kullanım koşullarını ve gizlilik politikasını kabul edin",
+
+  // Welcome Screen
+  appSubtitle: "Taze süt ürünleri kapınızda",
+  registerButtonText: "Hesap Oluştur",
+  copyrightText: "© 2025 Sütçün. Tüm hakları saklıdır.",
 };

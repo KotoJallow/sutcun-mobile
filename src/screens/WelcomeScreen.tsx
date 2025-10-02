@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome, Feather } from '@expo/vector-icons';
 import colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 const WelcomeScreen = ({ navigation }: any) => {
   return (
@@ -15,7 +16,7 @@ const WelcomeScreen = ({ navigation }: any) => {
 
       {/* App Title */}
       <Text style={styles.title}>Sütçün</Text>
-      <Text style={styles.subtitle}>Fresh dairy delivered to your doorstep</Text>
+      <Text style={styles.subtitle}>{Strings.appSubtitle}</Text>
 
       {/* Buttons Container */}
       <View style={styles.buttonsContainer}>
@@ -25,7 +26,7 @@ const WelcomeScreen = ({ navigation }: any) => {
           onPress={() => navigation.navigate('login')}
         >
           <FontAwesome name="sign-in" size={18} color="#fff" />
-          <Text style={styles.loginText}>Login</Text>
+          <Text style={styles.loginText}>{Strings.login}</Text>
         </TouchableOpacity>
 
         {/* Register Button */}
@@ -34,12 +35,12 @@ const WelcomeScreen = ({ navigation }: any) => {
           onPress={() => navigation.navigate('Register')}
         >
           <Feather name="user-plus" size={18} color="#14b8a6" />
-          <Text style={styles.registerText}>Create Account</Text>
+          <Text style={styles.registerText}>{Strings.registerButtonText}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Footer */}
-      <Text style={styles.footer}>© 2025 Sütçün. All rights reserved.</Text>
+      <Text style={styles.footer}>{Strings.copyrightText}</Text>
     </View>
   );
 };
