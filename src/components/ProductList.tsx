@@ -7,9 +7,11 @@ import ErrorMessage from './ErrorMessage';
 import { useProducts } from '../hooks/useApi';
 
 interface ProductListProps {
+  products: Product[];
   selectedCategoryId?: number;
   district?: string;
   neighborhood?: string;
+  loading: boolean;
 }
 
 const ProductList: React.FC<ProductListProps> = ({ selectedCategoryId, district, neighborhood }) => {

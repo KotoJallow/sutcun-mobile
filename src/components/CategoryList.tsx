@@ -40,8 +40,10 @@ const CategoryItem = ({ name, icon, isSelected, onPress }: CategoryItemProps) =>
 );
 
 interface CategoryListProps {
+  categories: any[]
   selectedCategory?: string;
-  onSelectCategory: (category: string, id: number) => void; // Tip güncellemesi
+  onSelectCategory: (category: string, id: number) => void;
+  loading?: boolean;
 }
 
 const CategoryList = ({ selectedCategory, onSelectCategory }: CategoryListProps) => {
