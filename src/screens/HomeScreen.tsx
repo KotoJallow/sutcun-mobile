@@ -11,8 +11,8 @@ import { useCategories, useProducts } from '../hooks/useApi';
 
 const HomeScreen = ({ navigation }: any) => {
   const { addresses, address } = useSelector((state: RootState) => state.user);
-  const [selectedCategory, setSelectedCategory] = useState<string>('Dairy');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
+  const [selectedCategory, setSelectedCategory] = useState<string>('Tümü');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined);
   const [currentLocation, setCurrentLocation] = useState<{district: string, neighborhood: string} | null>(null);
   
   // Firebase hooks
@@ -28,6 +28,12 @@ const HomeScreen = ({ navigation }: any) => {
     'https://picsum.photos/200/300',
     'https://picsum.photos/200/300',
   ];
+
+  // "Tümü" kategorisini kategorilerin başına ekle
+  const allCategories = categories ? [
+    { id: 0, name: 'Tümü', icon: 'grid' }, 
+    ...categories
+  ] : [{ id: 0, name: 'Tümü', icon: 'grid' }];
 
   useEffect(() => {
     // Set current location based on user's default address or default to Beylikdüzü/Kavaklı
@@ -58,7 +64,8 @@ const HomeScreen = ({ navigation }: any) => {
 
   const handleCategorySelect = (category: string, id: number) => {
     setSelectedCategory(category);
-    setSelectedCategoryId(id);
+    // "Tümü" kategorisi seçildiğinde categoryId'yi undefined yap (tüm ürünleri getir)
+    setSelectedCategoryId(id === 0 ? undefined : id);
   };
 
   const getAddressDisplayText = () => {
@@ -80,7 +87,7 @@ const HomeScreen = ({ navigation }: any) => {
           onPress={handleSliderPress}
         />
         <CategoryList
-          categories={categories || []}
+          categories={allCategories}
           selectedCategory={selectedCategory}
           onSelectCategory={handleCategorySelect}
           loading={categoriesLoading}

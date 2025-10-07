@@ -5,14 +5,14 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // MaterialCommunityIcons yerine Ionicons
+import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
-import { categories } from '../constants/dummyData';
 
 interface CategoryItemProps {
   name: string;
-  icon: string; // Update icon type
+  icon: string;
   isSelected?: boolean;
   onPress?: () => void;
 }
@@ -40,13 +40,21 @@ const CategoryItem = ({ name, icon, isSelected, onPress }: CategoryItemProps) =>
 );
 
 interface CategoryListProps {
-  categories: any[]
+  categories: any[];
   selectedCategory?: string;
   onSelectCategory: (category: string, id: number) => void;
   loading?: boolean;
 }
 
-const CategoryList = ({ selectedCategory, onSelectCategory }: CategoryListProps) => {
+const CategoryList = ({ categories, selectedCategory, onSelectCategory, loading }: CategoryListProps) => {
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="small" color={Colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -60,7 +68,7 @@ const CategoryList = ({ selectedCategory, onSelectCategory }: CategoryListProps)
             name={category.name}
             icon={category.icon}
             isSelected={category.name === selectedCategory}
-            onPress={() => onSelectCategory(category.name, category.id)} // İki parametre gönderiyoruz
+            onPress={() => onSelectCategory(category.name, category.id)}
           />
         ))}
       </ScrollView>
@@ -71,6 +79,11 @@ const CategoryList = ({ selectedCategory, onSelectCategory }: CategoryListProps)
 const styles = StyleSheet.create({
   container: {
     marginVertical: 16,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 32,
   },
   scrollContent: {
     paddingHorizontal: 16,
