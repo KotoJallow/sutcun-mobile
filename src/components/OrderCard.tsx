@@ -37,7 +37,6 @@ const OrderCard: React.FC<OrderCardProps> = ({
       
       <View style={styles.content}>
         <View style={styles.itemsContainer}>
-          <Text style={styles.itemCount}>{itemCount} items</Text>
           <Text style={styles.items}>{items}</Text>
         </View>
       </View>

@@ -250,85 +250,89 @@ const CartScreen = ({ navigation }: any) => {
     }
   };
 
-  const OrderConfirmModal = () => (
-    <Modal
-      visible={showOrderConfirmModal}
-      transparent={true}
-      animationType="fade"
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <View style={styles.modalIconContainer}>
-              <Icon name="check-circle" size={60} color={Colors.primary} />
-            </View>
-            <Text style={styles.modalTitle}>Siparişi Onayla</Text>
-            <Text style={styles.modalSubtitle}>
-              Sipariş detaylarını kontrol edin
-            </Text>
-          </View>
-
-          <View style={styles.orderSummary}>
-            <View style={styles.summaryRow}>
-              <Icon name="package-variant" size={20} color="#6b7280" />
-              <Text style={styles.summaryLabel}>Ürün Sayısı</Text>
-              <Text style={styles.summaryValue}>{items.length} ürün</Text>
-            </View>
-            
-            <View style={styles.summaryRow}>
-              <Icon name="map-marker" size={20} color="#6b7280" />
-              <Text style={styles.summaryLabel}>Teslimat Adresi</Text>
-              <Text style={styles.summaryValue} numberOfLines={1}>
-                {getDefaultAddress().neighborhood}
+  const OrderConfirmModal = () => {
+    // Toplam ürün sayısını hesapla (her ürünün miktarını topla)
+    const totalItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+    return (
+      <Modal
+        visible={showOrderConfirmModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalIconContainer}>
+                <Icon name="check-circle" size={60} color={Colors.primary} />
+              </View>
+              <Text style={styles.modalTitle}>Siparişi Onayla</Text>
+              <Text style={styles.modalSubtitle}>
+                Sipariş detaylarını kontrol edin
               </Text>
             </View>
-            
-            {selectedDeliveryTime && (
+
+            <View style={styles.orderSummary}>
               <View style={styles.summaryRow}>
-                <Icon name="clock-outline" size={20} color="#6b7280" />
-                <Text style={styles.summaryLabel}>Teslimat Saati</Text>
-                <Text style={styles.summaryValue}>
-                  {selectedDeliveryTime.date} - {selectedDeliveryTime.label} {selectedDeliveryTime.timeRange}
+                <Icon name="package-variant" size={20} color="#6b7280" />
+                <Text style={styles.summaryLabel}>Ürün Sayısı</Text>
+                <Text style={styles.summaryValue}>{totalItemCount} ürün</Text>
+              </View>
+              
+              <View style={styles.summaryRow}>
+                <Icon name="map-marker" size={20} color="#6b7280" />
+                <Text style={styles.summaryLabel}>Teslimat Adresi</Text>
+                <Text style={styles.summaryValue} numberOfLines={1}>
+                  {getDefaultAddress().neighborhood}
                 </Text>
               </View>
-            )}
-            
-            <View style={styles.summaryRow}>
-              <Icon name="credit-card" size={20} color="#6b7280" />
-              <Text style={styles.summaryLabel}>Ödeme</Text>
-              <Text style={styles.summaryValue}>Kapıda Ödeme</Text>
-            </View>
-            
-            <View style={[styles.summaryRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Toplam Tutar</Text>
-              <Text style={styles.totalValue}>{total.toFixed(2)} TL</Text>
-            </View>
-          </View>
-
-          <View style={styles.modalButtons}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => setShowOrderConfirmModal(false)}
-            >
-              <Text style={styles.cancelButtonText}>İptal</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.confirmButton, isCreatingOrder && styles.confirmButtonDisabled]}
-              onPress={handleConfirmOrder}
-              disabled={isCreatingOrder}
-            >
-              {isCreatingOrder ? (
-                <LoadingSpinner size="small" color="#fff" />
-              ) : (
-                <Text style={styles.confirmButtonText}>Siparişi Onayla</Text>
+              
+              {selectedDeliveryTime && (
+                <View style={styles.summaryRow}>
+                  <Icon name="clock-outline" size={20} color="#6b7280" />
+                  <Text style={styles.summaryLabel}>Teslimat Saati</Text>
+                  <Text style={styles.summaryValue}>
+                    {selectedDeliveryTime.date} - {selectedDeliveryTime.label} {selectedDeliveryTime.timeRange}
+                  </Text>
+                </View>
               )}
-            </TouchableOpacity>
+              
+              <View style={styles.summaryRow}>
+                <Icon name="credit-card" size={20} color="#6b7280" />
+                <Text style={styles.summaryLabel}>Ödeme</Text>
+                <Text style={styles.summaryValue}>Kapıda Ödeme</Text>
+              </View>
+              
+              <View style={[styles.summaryRow, styles.totalRow]}>
+                <Text style={styles.totalLabel}>Toplam Tutar</Text>
+                <Text style={styles.totalValue}>{total.toFixed(2)} TL</Text>
+              </View>
+            </View>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowOrderConfirmModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>İptal</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.confirmButton, isCreatingOrder && styles.confirmButtonDisabled]}
+                onPress={handleConfirmOrder}
+                disabled={isCreatingOrder}
+              >
+                {isCreatingOrder ? (
+                  <LoadingSpinner size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.confirmButtonText}>Siparişi Onayla</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
-  );
+      </Modal>
+    );
+  };
 
   return (
     <View style={styles.container}>

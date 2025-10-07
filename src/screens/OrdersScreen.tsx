@@ -52,34 +52,46 @@ export default function OrdersScreen({ navigation, route }: any) {
 		
 		try {
 			return items.map(item => {
+				let productName = '';
+				let quantity = 1;
+
 				// Handle different item structures
 				if (item && typeof item === 'object') {
+					// Get quantity (check different possible field names)
+					quantity = item.quantity || item.qty || item.count || 1;
+
 					// Check for nested product structure
 					if (item.product && item.product.product_name) {
-						return item.product.product_name;
+						productName = item.product.product_name;
 					}
 					// Check for direct product_name
-					if (item.product_name) {
-						return item.product_name;
+					else if (item.product_name) {
+						productName = item.product_name;
 					}
 					// Check for productName
-					if (item.productName) {
-						return item.productName;
+					else if (item.productName) {
+						productName = item.productName;
 					}
 					// Check for name field
-					if (item.name) {
-						return item.name;
+					else if (item.name) {
+						productName = item.name;
 					}
 				}
-				
 				// Handle string items
-				if (typeof item === 'string') {
-					return item;
+				else if (typeof item === 'string') {
+					productName = item;
 				}
-				
-				console.warn('📋 [ORDERS] Unknown item structure:', item);
-				return 'Unknown item';
-			}).filter(Boolean).join(', ');
+
+				if (!productName) {
+					console.warn('📋 [ORDERS] Unknown item structure:', item);
+					return null;
+				}
+
+				// Format as "5 X Fındık"
+				return `${quantity} X ${productName}`;
+			})
+			.filter(Boolean)
+			.join(', ');
 		} catch (error) {
 			console.error('📋 [ORDERS] Error processing items:', error);
 			return 'Error loading items';
