@@ -1,46 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
-import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../constants/colors';
-import { RootState } from '../redux/store';
 import { 
   DeliveryTimeSlot, 
   formatDeliveryDate 
 } from '../constants/deliveryTimes';
 import LoadingSpinner from './LoadingSpinner';
-import ErrorMessage from './ErrorMessage';
-import { useDeliverySlots } from '../hooks/useApi';
 
 interface DeliveryTimeSelectorProps {
   selectedTime: DeliveryTimeSlot | null;
   onTimeSelect: (time: DeliveryTimeSlot) => void;
+  deliverySlots: DeliveryTimeSlot[]; // CartScreen'den filtrelenmiş liste gelecek
+  loading?: boolean;
 }
 
-const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({ selectedTime, onTimeSelect }) => {
+const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({ 
+  selectedTime, 
+  onTimeSelect,
+  deliverySlots, // Filtrelenmiş listeyi kullan
+  loading = false
+}) => {
   const [showModal, setShowModal] = useState(false);
-  const { addresses } = useSelector((state: RootState) => state.user);
-  
-  // Get delivery location
-  const getDeliveryLocation = () => {
-    if (addresses.length > 0) {
-      const defaultAddress = addresses.find(addr => addr.isDefault);
-      if (defaultAddress) {
-        return {
-          district: defaultAddress.district,
-          neighborhood: defaultAddress.neighborhood,
-        };
-      }
-    }
-    // Default to Beylikdüzü/Kavaklı if no address
-    return {
-      district: 'Beylikdüzü',
-      neighborhood: 'Kavaklı',
-    };
-  };
-
-  const location = getDeliveryLocation();
-  const { data: deliveryTimes, loading, error, refetch } = useDeliverySlots(location);
 
   const handleTimeSelect = (time: DeliveryTimeSlot) => {
     onTimeSelect(time);
@@ -125,7 +106,7 @@ const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({ selectedTim
             </View>
             
             <FlatList
-              data={deliveryTimes || []}
+              data={deliverySlots} // Filtrelenmiş listeyi kullan
               keyExtractor={(item) => item.id}
               renderItem={renderTimeItem}
               style={styles.timeList}
@@ -134,19 +115,10 @@ const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({ selectedTim
                 if (loading) {
                   return <LoadingSpinner text="Loading delivery slots..." />;
                 }
-                if (error) {
-                  return (
-                    <ErrorMessage 
-                      message={error} 
-                      onRetry={refetch}
-                      retryText="Retry"
-                    />
-                  );
-                }
                 return (
                   <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>No delivery slots available</Text>
-                    <Text style={styles.emptySubtext}>Try selecting a different address</Text>
+                    <Text style={styles.emptyText}>Uygun teslimat saati bulunmuyor</Text>
+                    <Text style={styles.emptySubtext}>Tüm teslimat saatleri 3 saatten az kaldı</Text>
                   </View>
                 );
               }}

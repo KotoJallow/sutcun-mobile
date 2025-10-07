@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, ScrollView, StyleSheet, Text, Alert, TouchableOpacity, Modal } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -35,6 +35,49 @@ const CartScreen = ({ navigation }: any) => {
     district: defaultAddress?.district || 'Beylikdüzü',
     neighborhood: defaultAddress?.neighborhood || 'Kavaklı'
   });
+
+  // Teslimat saatlerini filtrele - 3 saatten az kalanları çıkar
+  const filteredDeliverySlots = useMemo(() => {
+    if (!deliverySlots) return [];
+
+    const now = new Date();
+    const threeHoursLater = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+
+    console.log('🕐 Current time:', now.toLocaleString('tr-TR'));
+    console.log('🕐 Three hours later:', threeHoursLater.toLocaleString('tr-TR'));
+    console.log('📦 Total delivery slots:', deliverySlots.length);
+
+    const filtered = deliverySlots.filter((slot: DeliveryTimeSlot) => {
+      try {
+        // Tarih formatı: "07.10.2025" veya "7.10.2025"
+        const dateParts = slot.date.split('.');
+        const day = parseInt(dateParts[0], 10);
+        const month = parseInt(dateParts[1], 10);
+        const year = parseInt(dateParts[2], 10);
+
+        // Saat formatı: "10:00-12:00"
+        const timeRange = slot.timeRange.split('-');
+        const startTime = timeRange[0].trim();
+        const [hours, minutes] = startTime.split(':').map(num => parseInt(num, 10));
+
+        // Teslimat başlangıç zamanını oluştur
+        const deliveryStartTime = new Date(year, month - 1, day, hours, minutes);
+
+        console.log(`📅 Slot: ${slot.date} ${slot.timeRange}`);
+        console.log(`   Delivery start time: ${deliveryStartTime.toLocaleString('tr-TR')}`);
+        console.log(`   Is valid: ${deliveryStartTime > threeHoursLater}`);
+
+        // Teslimat başlangıç zamanı, şu andan 3 saat sonradan daha ilerideyse göster
+        return deliveryStartTime > threeHoursLater;
+      } catch (error) {
+        console.error('❌ Error parsing slot:', slot, error);
+        return false;
+      }
+    });
+
+    console.log('✅ Filtered delivery slots:', filtered.length);
+    return filtered;
+  }, [deliverySlots]);
 
   // Get default address for delivery
   const getDefaultAddress = () => {
@@ -365,6 +408,8 @@ const CartScreen = ({ navigation }: any) => {
             <DeliveryTimeSelector
               selectedTime={selectedDeliveryTime}
               onTimeSelect={handleDeliveryTimeSelect}
+              deliverySlots={filteredDeliverySlots}
+              loading={slotsLoading}
             />
             <PaymentMethodSelector />
           </>
