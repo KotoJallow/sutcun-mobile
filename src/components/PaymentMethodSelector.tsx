@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   selectorCard: {
     backgroundColor: Colors.white,
     margin: 16,
-    marginTop: 0,
+    marginTop: 10,
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,

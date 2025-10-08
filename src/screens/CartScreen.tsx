@@ -445,9 +445,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    marginTop: 16,
   },
   categorySection: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   categoryTitle: {
     fontSize: 18,
