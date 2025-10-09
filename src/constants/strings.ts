@@ -66,4 +66,20 @@ export default {
   appSubtitle: "Taze süt ürünleri kapınızda",
   registerButtonText: "Hesap Oluştur",
   copyrightText: "© 2025 Sütçün. Tüm hakları saklıdır.",
+
+  // Account Screen
+  logoutTitle: 'Çıkış Yap',
+  logoutMessage: 'Çıkış yapmak istediğinize emin misiniz?',
+  logoutError: 'Çıkış yapılamadı. Lütfen tekrar deneyin.',
+  defaultUserName: 'Kullanıcı',
+  notProvided: 'Belirtilmemiş',
+  verifiedAccount: 'Doğrulanmış Hesap',
+
+  // Menu Items
+  myOrders: 'Siparişlerim',
+  myAddresses: 'Adreslerim',
+  paymentMethods: 'Ödeme Yöntemleri',
+  contactSupport: 'Destek',
+  appSettings: 'Uygulama Ayarları',
+
 };

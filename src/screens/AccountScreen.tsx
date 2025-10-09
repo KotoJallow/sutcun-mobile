@@ -5,6 +5,7 @@ import ProfileCard from '../components/ProfileCard';
 import MenuList from '../components/MenuList';
 import CustomToolbar from '../components/CustomToolbar';
 import colors from '../constants/colors';
+import Strings from '../constants/strings';
 import { RootState } from '../redux/store';
 import { logout } from '../redux/userSlice';
 import { clearCart } from '../redux/cartSlice';
@@ -18,12 +19,12 @@ export default function AccountScreen({ navigation }: any) {
 
   const handleLogout = async () => {
     Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
+      Strings.logoutTitle,
+      Strings.logoutMessage,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: Strings.cancel, style: 'cancel' },
         {
-          text: 'Logout',
+          text: Strings.logoutTitle,
           style: 'destructive',
           onPress: async () => {
             try {
@@ -39,7 +40,7 @@ export default function AccountScreen({ navigation }: any) {
               navigation.replace('Welcome');
             } catch (error) {
               console.error('Logout error:', error);
-              Alert.alert('Error', 'Failed to logout. Please try again.');
+              Alert.alert('Hata', Strings.logoutError);
             }
           }
         }
@@ -63,32 +64,32 @@ export default function AccountScreen({ navigation }: any) {
 
   const menuItems = [
     {
-      title: 'My Orders',
+      title: Strings.myOrders,
       icon: 'package-variant',
       onPress: () => navigation.navigate('Orders'),
     },
     {
-      title: 'My Addresses',
+      title: Strings.myAddresses,
       icon: 'map-marker-outline',
       onPress: () => navigation.navigate('AddressManagement'),
     },
     {
-      title: 'Payment Methods',
+      title: Strings.paymentMethods,
       icon: 'credit-card-outline',
       onPress: () => navigation.navigate('PaymentMethods'),
     },
     {
-      title: 'Contact Support',
+      title: Strings.contactSupport,
       icon: 'help-circle-outline',
       onPress: () => navigation.navigate('Support'),
     },
     {
-      title: 'App Settings',
+      title: Strings.appSettings,
       icon: 'cog-outline',
       onPress: () => navigation.navigate('Settings'),
     },
     {
-      title: 'Quit App',
+      title: Strings.logoutTitle,
       icon: 'exit-to-app',
       onPress: handleLogout,
     },
@@ -99,7 +100,7 @@ export default function AccountScreen({ navigation }: any) {
       <ScrollView>
         <ProfileCard
           name={getUserDisplayName()}
-          phone={phone || 'Not provided'}
+          phone={phone || Strings.notProvided}
           initials={getUserInitials()}
           isVerified={isVerified}
         />

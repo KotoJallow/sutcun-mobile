@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 interface ProfileCardProps {
   name: string;
@@ -25,7 +26,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ name, phone, initials, isVeri
         </View>
         <Text style={styles.phone}>{phone}</Text>
         {isVerified && (
-          <Text style={styles.verifiedText}>Verified Account</Text>
+          <Text style={styles.verifiedText}>{Strings.verifiedAccount}</Text>
         )}
       </View>
     </View>
