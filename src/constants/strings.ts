@@ -108,5 +108,8 @@ export default {
   errorEnterApartment: 'Lütfen daire numarası giriniz',
   errorEnterTitle: 'Lütfen adres başlığı giriniz',
   errorUserNotFound: 'Kullanıcı bulunamadı. Lütfen kayıt olun veya giriş yapın.',
-  errorSaveAddress: 'Adres kaydedilemedi. Lütfen tekrar deneyin.'
+  errorSaveAddress: 'Adres kaydedilemedi. Lütfen tekrar deneyin.',
+
+  // Uygulama Ayarları Ekranı
+  appSettingsScreen: 'Uygulama Ayarları Ekranı'
 };
