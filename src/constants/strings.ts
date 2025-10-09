@@ -82,4 +82,31 @@ export default {
   contactSupport: 'Destek',
   appSettings: 'Uygulama Ayarları',
 
+  // Adres Ekleme Ekranı
+  addAddress: 'Yeni Adres Ekle',
+  selectDistrict: 'İlçe seçiniz',
+  selectNeighborhood: 'Mahalle seçiniz',
+  streetAddress: 'Cadde / Sokak',
+  buildingNumber: 'Bina No',
+  floorNumber: 'Kat',
+  apartmentNumber: 'Daire No',
+  addressDirections: 'Adres Tarifi',
+  addressDirectionsExample: 'Örn: Taksi durağının karşısı',
+  addressDetails: 'Adres Detayları',
+  addressTitle: 'Adres Başlığı',
+  saveAddress: 'Kaydet',
+  homeAddress: 'Ev',
+  workAddress: 'İş',
+  otherAddress: 'Diğer',
+  
+  // Hata Mesajları
+  errorSelectDistrict: 'Lütfen ilçe seçiniz',
+  errorSelectNeighborhood: 'Lütfen mahalle seçiniz',
+  errorEnterStreet: 'Lütfen cadde/sokak giriniz',
+  errorEnterBuilding: 'Lütfen bina numarası giriniz',
+  errorEnterFloor: 'Lütfen kat numarası giriniz',
+  errorEnterApartment: 'Lütfen daire numarası giriniz',
+  errorEnterTitle: 'Lütfen adres başlığı giriniz',
+  errorUserNotFound: 'Kullanıcı bulunamadı. Lütfen kayıt olun veya giriş yapın.',
+  errorSaveAddress: 'Adres kaydedilemedi. Lütfen tekrar deneyin.'
 };

@@ -23,6 +23,7 @@ import { addAddress } from '../redux/userSlice';
 import { db } from '../firebase/firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { RootState } from '../redux/store';
+import Strings from '../constants/strings';
 
 type AddressType = 'ev' | 'iş' | 'diğer';
 
@@ -43,31 +44,31 @@ const AddAddressScreen = ({ navigation } : any) => {
   
   const validateForm = () => {
     if (!district) {
-      Alert.alert('Error', 'Please select a district');
+      Alert.alert('Hata', Strings.errorSelectDistrict);
       return false;
     }
     if (!neighborhood) {
-      Alert.alert('Error', 'Please select a neighborhood');
+      Alert.alert('Hata', Strings.errorSelectNeighborhood);
       return false;
     }
     if (!street.trim()) {
-      Alert.alert('Error', 'Please enter street/avenue');
+      Alert.alert('Hata', Strings.errorEnterStreet);
       return false;
     }
     if (!buildingNo.trim()) {
-      Alert.alert('Error', 'Please enter building number');
+      Alert.alert('Hata', Strings.errorEnterBuilding);
       return false;
     }
     if (!floor.trim()) {
-      Alert.alert('Error', 'Please enter floor');
+      Alert.alert('Hata', Strings.errorEnterFloor);
       return false;
     }
     if (!apartmentNo.trim()) {
-      Alert.alert('Error', 'Please enter apartment number');
+      Alert.alert('Hata', Strings.errorEnterApartment);
       return false;
     }
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter address title');
+      Alert.alert('Hata', Strings.errorEnterTitle);
       return false;
     }
     return true;
@@ -78,7 +79,7 @@ const AddAddressScreen = ({ navigation } : any) => {
 
     // Require an authenticated/created user with an id
     if (!user?.id) {
-      Alert.alert('Error', 'User not found. Please complete registration or login before adding an address.');
+      Alert.alert('Hata', Strings.errorUserNotFound);
       return;
     }
 
@@ -116,7 +117,7 @@ const AddAddressScreen = ({ navigation } : any) => {
 
     } catch (error) {
       console.error('❌ Error saving address to Firestore:', error);
-      Alert.alert('Error', 'Failed to save address. Please try again.');
+      Alert.alert('Hata', Strings.errorSaveAddress);
     }
   };
 
@@ -273,7 +274,7 @@ const AddAddressScreen = ({ navigation } : any) => {
   return (
     <View style={styles.container}>
       <CustomToolbar 
-        title="Yeni Adres Ekle"
+        title={Strings.addAddress}
         showBack={true}
         onBackPress={() => navigation.goBack()}
       />
@@ -299,8 +300,8 @@ const AddAddressScreen = ({ navigation } : any) => {
           onSelect={setNeighborhood}
         />
 
-        <View style={[styles.inputContainer, {marginTop: 16} ]}>
-          <Text style={styles.label}>Cadde / Sokak *</Text>
+        <View style={[styles.inputContainer, {marginTop: 16}]}>
+          <Text style={styles.label}>{Strings.streetAddress} *</Text>
           <TextInput
             style={styles.input}
             value={street}
@@ -310,7 +311,7 @@ const AddAddressScreen = ({ navigation } : any) => {
 
         <View style={styles.rowContainer}>
           <View style={[styles.inputContainer, { flex: 1 }]}>
-            <Text style={styles.label}>Bina No *</Text>
+            <Text style={styles.label}>{Strings.buildingNumber} *</Text>
             <TextInput
               style={styles.input}
               value={buildingNo}
@@ -320,7 +321,7 @@ const AddAddressScreen = ({ navigation } : any) => {
           </View>
 
           <View style={[styles.inputContainer, { flex: 1 }]}>
-            <Text style={styles.label}>Kat *</Text>
+            <Text style={styles.label}>{Strings.floorNumber} *</Text>
             <TextInput
               style={styles.input}
               value={floor}
@@ -331,7 +332,7 @@ const AddAddressScreen = ({ navigation } : any) => {
           </View>
 
           <View style={[styles.inputContainer, { flex: 1 }]}>
-            <Text style={styles.label}>Daire No *</Text>
+            <Text style={styles.label}>{Strings.apartmentNumber} *</Text>
             <TextInput
               style={styles.input}
               value={apartmentNo}
@@ -343,7 +344,7 @@ const AddAddressScreen = ({ navigation } : any) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Adres Tarifi (Örn: Taksi durağının karşısı)</Text>
+          <Text style={styles.label}>{`${Strings.addressDirections} (${Strings.addressDirectionsExample})`}</Text>
           <TextInput
             style={[styles.input, styles.addressInput]}
             value={description}
@@ -355,28 +356,28 @@ const AddAddressScreen = ({ navigation } : any) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Adres Detayları</Text>
+          <Text style={styles.label}>{Strings.addressDetails}</Text>
           <View style={styles.addressTypesContainer}>
             <AddressTypeButton 
               type="ev" 
-              title="Ev" 
+              title={Strings.homeAddress}
               iconName="home"
             />
             <AddressTypeButton 
               type="iş" 
-              title="İş" 
+              title={Strings.workAddress}
               iconName="office-building"
             />
             <AddressTypeButton 
               type="diğer" 
-              title="Diğer" 
-              iconName="map-marker" 
+              title={Strings.otherAddress}
+              iconName="map-marker"
             />
           </View>
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Adres Başlığı</Text>
+          <Text style={styles.label}>{Strings.addressTitle}</Text>
           <TextInput
             style={styles.input}
             value={title}
@@ -390,7 +391,7 @@ const AddAddressScreen = ({ navigation } : any) => {
           style={styles.saveButton} 
           onPress={handleSaveAddress}
         >
-          <Text style={styles.saveButtonText}>Kaydet</Text>
+          <Text style={styles.saveButtonText}>{Strings.saveAddress}</Text>
         </TouchableOpacity>
       </View>
     </View>
