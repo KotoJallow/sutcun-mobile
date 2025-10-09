@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CustomToolbar from '../components/CustomToolbar';
 import colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 const PaymentMethodsScreen = ({ navigation }: any) => {
 
@@ -11,12 +12,12 @@ const handleBackPress = () => {
 
   return (
     <View style={styles.container}>
-      <CustomToolbar title="Payment Methods"
+      <CustomToolbar title= {Strings.paymentMethods}
         showBack={true}
         showDelete={false}
         onBackPress={handleBackPress}/>
       <View style={styles.content}>
-        <Text style={styles.text}>Payment Methods will be listed here.</Text>
+        <Text style={styles.text}>{Strings.PaymentMethodsScreen}</Text>
       </View>
     </View>
   );

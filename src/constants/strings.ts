@@ -1,3 +1,5 @@
+import PaymentMethodsScreen from "../screens/PaymentMethodsScreen";
+
 export default {
   // Screen Titles
   homeTitle: 'Ana Sayfa',
@@ -112,5 +114,7 @@ export default {
 
   // Hesabım altındaki Ekranlar
   appSettingsScreen: 'Uygulama Ayarları Ekranı',
-  contactSupportScreen: 'İletişim Destek Ekranı'
+  contactSupportScreen: 'İletişim Destek Ekranı',
+  PaymentMethodsScreen: 'Ödeme Yöntemleri burada listelenecektir.'
+
 };
