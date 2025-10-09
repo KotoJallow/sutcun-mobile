@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CustomToolbar from '../components/CustomToolbar';
 import colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 const ContactSupportScreen = ({ navigation }: any) => {
 
@@ -11,12 +12,12 @@ const handleBackPress = () => {
 
   return (
     <View style={styles.container}>
-      <CustomToolbar title="Contact Support"
+      <CustomToolbar title= {Strings.contactSupport}
         showBack={true}
         showDelete={false}
         onBackPress={handleBackPress}/>
       <View style={styles.content}>
-        <Text style={styles.text}>ContactSupportScreen</Text>
+        <Text style={styles.text}>{Strings.contactSupportScreen}</Text>
       </View>
     </View>
   );

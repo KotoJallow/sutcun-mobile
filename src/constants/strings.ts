@@ -110,6 +110,7 @@ export default {
   errorUserNotFound: 'Kullanıcı bulunamadı. Lütfen kayıt olun veya giriş yapın.',
   errorSaveAddress: 'Adres kaydedilemedi. Lütfen tekrar deneyin.',
 
-  // Uygulama Ayarları Ekranı
-  appSettingsScreen: 'Uygulama Ayarları Ekranı'
+  // Hesabım altındaki Ekranlar
+  appSettingsScreen: 'Uygulama Ayarları Ekranı',
+  contactSupportScreen: 'İletişim Destek Ekranı'
 };
