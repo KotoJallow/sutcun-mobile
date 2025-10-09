@@ -29,6 +29,10 @@ export default {
 
   // Additional Translations
   freshDairy: "Taze süt ürünleri kapınızda",
+  change: "Adres Değiştir",
+  deliverTo: "Teslimat Adresi",
+  total: "Toplam",
+  orderNumber: "Sipariş No",
   //loginOrSignUp: "Giriş Yap veya Kayıt Ol",
   enterPhone: "Giriş yapmak için telefon numaranızı giriniz",
   phoneNumber: "Telefon Numarası",

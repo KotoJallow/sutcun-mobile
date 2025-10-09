@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 interface OrderCardProps {
   orderNumber: string;
@@ -23,7 +24,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.orderNumber}>Order #{orderNumber}</Text>
+          <Text style={styles.orderNumber}>{Strings.orderNumber} #{orderNumber}</Text>
           <Text style={styles.date}>{date}</Text>
         </View>
         <View style={[styles.statusBadge, 
@@ -42,7 +43,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
       </View>
       
       <View style={styles.footer}>
-        <Text style={styles.totalLabel}>Total</Text>
+        <Text style={styles.totalLabel}>{Strings.total}</Text>
         <Text style={styles.totalAmount}>₺{total.toFixed(2)}</Text>
       </View>
     </View>

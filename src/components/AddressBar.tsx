@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 interface AddressBarProps {
   address: string;
@@ -14,7 +15,7 @@ const AddressBar = ({ address, onPress }: AddressBarProps) => {
       <View style={styles.content}>
         <MaterialIcons name="location-on" size={24} color={Colors.primary} />
         <View style={styles.textContainer}>
-          <Text style={styles.deliverText}>Deliver to</Text>
+          <Text style={styles.deliverText}>{Strings.deliverTo}</Text>
           <View style={styles.addressContainer}>
             <Text style={styles.addressText} numberOfLines={1}>
               {address}
@@ -27,7 +28,7 @@ const AddressBar = ({ address, onPress }: AddressBarProps) => {
           </View>
         </View>
       </View>
-      <Text style={styles.changeButton}>CHANGE</Text>
+      <Text style={styles.changeButton}>{Strings.change}</Text>
     </TouchableOpacity>
   );
 };
