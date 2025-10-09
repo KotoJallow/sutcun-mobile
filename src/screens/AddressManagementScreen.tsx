@@ -7,6 +7,7 @@ import AddressCard from '../components/AddressCard';
 import Colors from '../constants/colors';
 import Strings from '../constants/strings';
 import colors from '../constants/colors';
+import { clearCart } from '../redux/cartSlice'; // Import clearCart action
 import { RootState } from '../redux/store';
 import { setDefaultAddress, removeAddress } from '../redux/userSlice';
 import { useDeleteAddress } from '../hooks/useApi';
@@ -14,32 +15,58 @@ import { useDeleteAddress } from '../hooks/useApi';
 const AddressManagementScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const { addresses } = useSelector((state: RootState) => state.user);
+  const { items } = useSelector((state: RootState) => state.cart); // Get cart items
   const { mutate: deleteAddressApi, loading: isDeleting } = useDeleteAddress();
 
   const handleBackPress = () => {
     navigation.goBack();
   };
 
+  const handleSetDefaultAddress = (addressId: string) => {
+    if (items.length > 0) {
+      Alert.alert(
+        'Sepet Sıfırlanacak',
+        'Varsayılan adres değiştirildiğinde sepetinizdeki ürünler silinecektir. Devam etmek istiyor musunuz?',
+        [
+          {
+            text: 'İptal',
+            style: 'cancel'
+          },
+          {
+            text: 'Devam Et',
+            style: 'destructive',
+            onPress: () => {
+              dispatch(setDefaultAddress(addressId));
+              dispatch(clearCart());
+            }
+          }
+        ]
+      );
+    } else {
+      dispatch(setDefaultAddress(addressId));
+    }
+  };
+
   const handleOptionsPress = (addressId: string) => {
     Alert.alert(
-      'Address Options',
-      'What would you like to do with this address?',
+      'Adres Seçenekleri',
+      'Bu adres için ne yapmak istersiniz?',
       [
         {
-          text: 'Set as Default',
-          onPress: () => dispatch(setDefaultAddress(addressId))
+          text: 'Varsayılan Yap',
+          onPress: () => handleSetDefaultAddress(addressId)
         },
         {
-          text: 'Delete',
+          text: 'Sil',
           style: 'destructive',
           onPress: () => {
             Alert.alert(
-              'Delete Address',
-              'Are you sure you want to delete this address?',
+              'Adresi Sil',
+              'Bu adresi silmek istediğinize emin misiniz?',
               [
-                { text: 'Cancel', style: 'cancel' },
+                { text: 'İptal', style: 'cancel' },
                 { 
-                  text: 'Delete', 
+                  text: 'Sil', 
                   style: 'destructive', 
                   onPress: async () => {
                     try {
@@ -50,11 +77,11 @@ const AddressManagementScreen = ({ navigation }: any) => {
                         dispatch(removeAddress(addressId));
                         console.log('✅ Address deleted successfully');
                       } else {
-                        Alert.alert('Error', 'Failed to delete address. Please try again.');
+                        Alert.alert('Hata', 'Adres silme işlemi başarısız oldu. Lütfen tekrar deneyin.');
                       }
                     } catch (error) {
                       console.error('❌ Error deleting address:', error);
-                      Alert.alert('Error', 'Failed to delete address. Please try again.');
+                      Alert.alert('Hata', 'Adres silme işlemi başarısız oldu. Lütfen tekrar deneyin.');
                     }
                   }
                 }
@@ -62,7 +89,7 @@ const AddressManagementScreen = ({ navigation }: any) => {
             );
           }
         },
-        { text: 'Cancel', style: 'cancel' }
+        { text: 'İptal', style: 'cancel' }
       ]
     );
   };
@@ -81,8 +108,8 @@ const AddressManagementScreen = ({ navigation }: any) => {
       <ScrollView style={styles.scrollView}>
         {addresses.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No addresses saved yet</Text>
-            <Text style={styles.emptySubtext}>Add your first address to get started</Text>
+            <Text style={styles.emptyText}>Henüz kaydedilmiş adres yok</Text>
+            <Text style={styles.emptySubtext}>İlk adresinizi eklemek için aşağıdaki butona tıklayın</Text>
           </View>
         ) : (
           addresses.map((address) => (
