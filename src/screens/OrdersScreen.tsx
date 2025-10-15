@@ -8,6 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { setOrders } from '../redux/orderSlice';
 import { simpleDataService } from '../services/dataServiceSimple';
+import Strings from '../constants/strings';
 
 export default function OrdersScreen({ navigation, route }: any) {
 	const dispatch = useDispatch();
@@ -47,7 +48,7 @@ export default function OrdersScreen({ navigation, route }: any) {
 	const getOrderItemsText = (items: any[]) => {
 		if (!items || !Array.isArray(items)) {
 			console.warn('📋 [ORDERS] Invalid items array:', items);
-			return 'No items';
+			return Strings.noItems;
 		}
 		
 		try {
@@ -94,7 +95,7 @@ export default function OrdersScreen({ navigation, route }: any) {
 			.join(', ');
 		} catch (error) {
 			console.error('📋 [ORDERS] Error processing items:', error);
-			return 'Error loading items';
+			return Strings.errorLoadingItems;
 		}
 	};
 
@@ -104,8 +105,8 @@ export default function OrdersScreen({ navigation, route }: any) {
 		return (
 			<View style={styles.container}>
 				<View style={styles.emptyContainer}>
-					<Text style={styles.emptyText}>Error loading orders</Text>
-					<Text style={styles.emptySubtext}>Please try again later</Text>
+					<Text style={styles.emptyText}>{Strings.errorLoadingOrders}</Text>
+					<Text style={styles.emptySubtext}>{Strings.tryAgainLater}</Text>
 				</View>
 			</View>
 		);
@@ -116,8 +117,8 @@ export default function OrdersScreen({ navigation, route }: any) {
 			<ScrollView contentContainerStyle={styles.scrollContent}>
 				{orders.length === 0 ? (
 					<View style={styles.emptyContainer}>
-						<Text style={styles.emptyText}>No orders yet</Text>
-						<Text style={styles.emptySubtext}>Your orders will appear here</Text>
+						<Text style={styles.emptyText}>{Strings.noOrders}</Text>
+						<Text style={styles.emptySubtext}>{Strings.ordersWillAppear}</Text>
 					</View>
 				) : (
 					orders.map((order) => {
@@ -144,7 +145,7 @@ export default function OrdersScreen({ navigation, route }: any) {
 							console.error('📋 [ORDERS] Error rendering order:', error, order);
 							return (
 								<View key={order.id || Math.random().toString()} style={styles.errorCard}>
-									<Text style={styles.errorText}>Error loading order</Text>
+									<Text style={styles.errorText}>{Strings.errorLoadingOrder}</Text>
 								</View>
 							);
 						}

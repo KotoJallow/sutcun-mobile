@@ -119,6 +119,14 @@ export default {
   // Hesabım altındaki Ekranlar
   appSettingsScreen: 'Uygulama Ayarları Ekranı',
   contactSupportScreen: 'İletişim Destek Ekranı',
-  PaymentMethodsScreen: 'Ödeme Yöntemleri burada listelenecektir.'
+  PaymentMethodsScreen: 'Ödeme Yöntemleri burada listelenecektir.',
 
+  // Orders Screen
+  noOrders: 'Henüz sipariş yok',
+  ordersWillAppear: 'Siparişleriniz burada görünecek',
+  errorLoadingOrders: 'Siparişler yüklenirken hata oluştu',
+  tryAgainLater: 'Lütfen daha sonra tekrar deneyin',
+  errorLoadingOrder: 'Sipariş yüklenirken hata oluştu',
+  noItems: 'Ürün yok',
+  errorLoadingItems: 'Ürünler yüklenirken hata oluştu'
 };
