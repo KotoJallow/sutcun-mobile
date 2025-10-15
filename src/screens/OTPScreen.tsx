@@ -24,6 +24,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { dataService } from '../services/dataService';
 import { simpleDataService } from '../services/dataServiceSimple';
 import { setOrders } from '../redux/orderSlice';
+import Strings from '../constants/strings';
 
 const CELL_COUNT = 6;
 
@@ -131,9 +132,10 @@ export default function OTPScreen({ route, navigation }: any) {
 
   const confirmCode = async () => {
     if (!verificationId) {
-      Alert.alert("Error", "No verification ID. Try resending the code first.");
+      Alert.alert("Hata", Strings.noVerificationId);
       return;
     }
+    
     try {
       setIsVerifying(true);
       const credential = PhoneAuthProvider.credential(verificationId, code);
@@ -197,9 +199,9 @@ export default function OTPScreen({ route, navigation }: any) {
             
             // Show welcome message and go to main
             Alert.alert(
-              'Welcome!', 
-              'Since this is your first time, we\'ll show products from Beylikdüzü/Kavaklı. You can add your address later.',
-              [{ text: 'OK', onPress: () => navigation.replace("Main") }]
+              Strings.welcome, 
+              Strings.firstTimeMessage,
+              [{ text: Strings.ok, onPress: () => navigation.replace("Main") }]
             );
           } catch (firestoreError) {
             console.error('❌ Error saving new user to Firestore:', firestoreError);
@@ -213,7 +215,7 @@ export default function OTPScreen({ route, navigation }: any) {
         }
       }
     } catch (err: any) {
-      Alert.alert("Verification Failed", err.message);
+      Alert.alert(Strings.verificationError, err.message);
     } finally {
       setIsVerifying(false);
     }
@@ -227,12 +229,12 @@ export default function OTPScreen({ route, navigation }: any) {
       />
       
       {isLoading ? (
-        <LoadingSpinner text="Sending verification code..." />
+        <LoadingSpinner text={Strings.sendingCode} />
       ) : (
         <View style={styles.card}>
-          <Text style={styles.title}>Enter the 6-digit code</Text>
+          <Text style={styles.title}>{Strings.otpTitle}</Text>
           <Text style={styles.subtitle}>
-            We've sent a code to your phone number
+            {Strings.otpSubtitle}
           </Text>
 
           <CodeField
@@ -265,12 +267,12 @@ export default function OTPScreen({ route, navigation }: any) {
             {isVerifying ? (
               <LoadingSpinner size="small" color="#fff" />
             ) : (
-              <Text style={styles.verifyButtonText}>Verify</Text>
+              <Text style={styles.verifyButtonText}>{Strings.verify}</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity onPress={sendVerification} disabled={isLoading}>
-            <Text style={styles.resendText}>Resend Code</Text>
+            <Text style={styles.resendText}>{Strings.resendCode}</Text>
           </TouchableOpacity>
         </View>
       )}

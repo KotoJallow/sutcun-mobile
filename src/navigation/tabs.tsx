@@ -29,7 +29,7 @@ const BottomTabs = ({ navigation }: any) => {
 
           if (screenName === 'Home') {
             showCart = true;
-            title = Strings.homeTitle;
+            title = Strings.sutcun;
           }
           
           if (screenName === 'Orders') title = Strings.ordersTitle;

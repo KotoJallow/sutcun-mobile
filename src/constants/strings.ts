@@ -2,6 +2,7 @@ import PaymentMethodsScreen from "../screens/PaymentMethodsScreen";
 
 export default {
   // Screen Titles
+  sutcun: 'Sütçün',
   homeTitle: 'Ana Sayfa',
   ordersTitle: 'Siparişlerim',
   accountTitle: 'Hesabım',
@@ -128,5 +129,17 @@ export default {
   tryAgainLater: 'Lütfen daha sonra tekrar deneyin',
   errorLoadingOrder: 'Sipariş yüklenirken hata oluştu',
   noItems: 'Ürün yok',
-  errorLoadingItems: 'Ürünler yüklenirken hata oluştu'
-};
+  errorLoadingItems: 'Ürünler yüklenirken hata oluştu',
+
+  // OTP Screen
+  otpTitle: '6 haneli kodu giriniz',
+  otpSubtitle: 'Telefon numaranıza bir kod gönderdik',
+  verify: 'Doğrula',
+  resendCode: 'Kodu Tekrar Gönder',
+  sendingCode: 'Doğrulama kodu gönderiliyor...',
+  verificationError: 'Doğrulama Hatası',
+  noVerificationId: 'Doğrulama kodu bulunamadı. Lütfen kodu tekrar gönderiniz.',
+  welcome: 'Hoş Geldiniz!',
+  firstTimeMessage: 'İlk girişiniz olduğu için Beylikdüzü/Kavaklı bölgesindeki ürünleri göstereceğiz. Adresinizi daha sonra ekleyebilirsiniz.',
+  ok: 'Tamam'
+}
