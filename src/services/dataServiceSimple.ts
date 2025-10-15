@@ -239,7 +239,7 @@ class SimpleDataService {
         console.log('🏠 [DEFAULT] No addresses found, creating default empty address');
         
         const defaultAddress = {
-          title: 'Default Address',
+          title: 'Default Address(Burası Bug Yapıyor)',
           district: 'Beylikdüzü',
           neighborhood: 'Kavaklı',
           street: '',
