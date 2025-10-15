@@ -15,6 +15,7 @@ import { createOrder, clearCurrentOrder, addOrderFromFirestore } from '../redux/
 import { useCreateOrder, useDeliverySlots } from '../hooks/useApi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { simpleDataService } from '../services/dataServiceSimple';
+import Strings from '../constants/strings';
 
 const CartScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
@@ -129,15 +130,15 @@ const CartScreen = ({ navigation }: any) => {
 
   const handleDeletePress = () => {
     Alert.alert(
-      "Clear Cart",
-      "Are you sure you want to clear your cart?",
+      Strings.clearCart,
+      Strings.clearCartConfirm,
       [
         {
-          text: "Cancel",
+          text: Strings.cancel,
           style: "cancel"
         },
         {
-          text: "Clear",
+          text: Strings.clearCart,
           onPress: () => dispatch(clearCart()),
           style: "destructive"
         }
@@ -151,7 +152,7 @@ const CartScreen = ({ navigation }: any) => {
 
   const handleCreateOrder = () => {
     if (!selectedDeliveryTime) {
-      Alert.alert('Uyarı', 'Lütfen teslimat saati seçiniz.');
+      Alert.alert(Strings.warning, Strings.selectTimeWarning);
       return;
     }
     setShowOrderConfirmModal(true);
@@ -160,17 +161,17 @@ const CartScreen = ({ navigation }: any) => {
   const handleConfirmOrder = async () => {
     // Validation checks
     if (!selectedDeliveryTime) {
-      Alert.alert('Error', 'Please select a delivery time');
+      Alert.alert(Strings.warning, Strings.selectTimeWarning);
       return;
     }
 
     if (!items || items.length === 0) {
-      Alert.alert('Error', 'Your cart is empty. Please add items before placing an order.');
+      Alert.alert(Strings.error, Strings.emptyCartError);
       return;
     }
 
     if (!user?.id) {
-      Alert.alert('Error', 'User not authenticated. Please log in again.');
+      Alert.alert(Strings.error, Strings.authError);
       return;
     }
 
@@ -214,11 +215,11 @@ const CartScreen = ({ navigation }: any) => {
         setShowOrderConfirmModal(false);
         
         Alert.alert(
-          'Order Confirmed!', 
-          'Your order has been placed successfully. You can track it in the Orders section.',
+          Strings.orderSuccess,
+          Strings.orderSuccessMessage,
           [
             {
-              text: 'OK',
+              text: Strings.ok,
               onPress: () => {
                 dispatch(clearCart());
                 dispatch(clearCurrentOrder());
@@ -234,31 +235,31 @@ const CartScreen = ({ navigation }: any) => {
       // Enhanced error handling with specific error messages
       console.error('❌ Order creation failed:', error);
       
-      let errorMessage = 'Unable to create order. Please try again.';
-      let errorTitle = 'Order Failed';
+      let errorMessage = Strings.unableToCreateOrder;
+      let errorTitle = Strings.orderFailed;
       
       // Determine specific error type and message
       if (error instanceof Error) {
         const errorStr = error.message.toLowerCase();
         
         if (errorStr.includes('network') || errorStr.includes('connection')) {
-          errorTitle = 'Connection Error';
-          errorMessage = 'Please check your internet connection and try again.';
+          errorTitle = Strings.connectionError;
+          errorMessage = Strings.connectionError;
         } else if (errorStr.includes('firestore') || errorStr.includes('firebase')) {
-          errorTitle = 'Database Error';
-          errorMessage = 'There was an issue saving your order. Please try again.';
+          errorTitle = Strings.databaseError;
+          errorMessage = Strings.databaseError;
         } else if (errorStr.includes('address') || errorStr.includes('delivery')) {
-          errorTitle = 'Address Error';
-          errorMessage = 'Please check your delivery address and try again.';
+          errorTitle = Strings.addressError;
+          errorMessage = Strings.addressError;
         } else if (errorStr.includes('items') || errorStr.includes('cart')) {
-          errorTitle = 'Cart Error';
-          errorMessage = 'There was an issue with your cart items. Please refresh and try again.';
+          errorTitle = Strings.cartError;
+          errorMessage = Strings.cartError;
         } else if (errorStr.includes('user') || errorStr.includes('auth')) {
-          errorTitle = 'Authentication Error';
-          errorMessage = 'Please log in again and try placing your order.';
+          errorTitle = Strings.authenticationError;
+          errorMessage = Strings.authError;
         } else {
-          errorTitle = 'Order Error';
-          errorMessage = `Order creation failed: ${error.message}`;
+          errorTitle = Strings.orderError;
+          errorMessage = `${Strings.orderFailed}: ${error.message}`;
         }
       }
       
@@ -380,7 +381,7 @@ const CartScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <CustomToolbar
-        title="Cart"
+        title={Strings.cart}
         showBack={true}
         showDelete={true}
         onBackPress={handleBackPress}
@@ -419,7 +420,7 @@ const CartScreen = ({ navigation }: any) => {
       {items.length > 0 && (
         <View style={styles.bottomSection}>
           <View style={styles.totalContainer}>
-            <Text style={styles.totalLabel}>Toplam Tutar:</Text>
+            <Text style={styles.totalLabel}>{Strings.totalAmount}:</Text>
             <Text style={styles.totalAmount}>{total.toFixed(2)} TL</Text>
           </View>
           
@@ -428,7 +429,7 @@ const CartScreen = ({ navigation }: any) => {
             onPress={handleCreateOrder}
           >
             <Icon name="shopping" size={20} color={Colors.white} />
-            <Text style={styles.orderButtonText}>Siparişi Oluştur</Text>
+            <Text style={styles.orderButtonText}>{Strings.createOrder}</Text>
           </TouchableOpacity>
         </View>
       )}

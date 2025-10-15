@@ -5,6 +5,7 @@ import { addToCart } from '../redux/cartSlice';
 import { Product } from '../constants/dummyData';
 import { RootState } from '../redux/store';
 import { useNavigation } from '@react-navigation/native';
+import Strings from '../constants/strings';
 
 const { width } = Dimensions.get('window');
 const NUM_OF_CARDS = 2;
@@ -24,12 +25,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     // Check if user has any saved addresses
     if (addresses.length === 0) {
       Alert.alert(
-        'Address Required',
-        'You need to add an address before adding products to cart. Would you like to add an address now?',
+        Strings.addressRequired,
+        Strings.addressBeforeCart,
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: Strings.cancel, style: 'cancel' },
           { 
-            text: 'Add Address', 
+            text: Strings.addAddress, 
             onPress: () => navigation.navigate('AddAddress')
           }
         ]
@@ -41,7 +42,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     dispatch(addToCart(product));
     
     // Show success message
-    Alert.alert('Success', `${product.product_name} added to cart!`);
+    Alert.alert(Strings.success, `${product.product_name} ${Strings.addedToCart}`);
   };
 
   return (

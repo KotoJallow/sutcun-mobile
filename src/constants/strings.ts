@@ -141,5 +141,51 @@ export default {
   noVerificationId: 'Doğrulama kodu bulunamadı. Lütfen kodu tekrar gönderiniz.',
   welcome: 'Hoş Geldiniz!',
   firstTimeMessage: 'İlk girişiniz olduğu için Beylikdüzü/Kavaklı bölgesindeki ürünleri göstereceğiz. Adresinizi daha sonra ekleyebilirsiniz.',
-  ok: 'Tamam'
+  ok: 'Tamam',
+
+  // Cart Screen
+  cart: 'Sepet',
+  clearCart: 'Sepeti Temizle',
+  clearCartConfirm: 'Sepetinizi temizlemek istediğinize emin misiniz?',
+  orderConfirm: 'Siparişi Onayla',
+  checkOrderDetails: 'Sipariş detaylarını kontrol edin',
+  itemCount: 'ürün',
+  deliveryAddress: 'Teslimat Adresi',
+  deliveryTime: 'Teslimat Saati',
+  payment: 'Ödeme',
+  cashOnDelivery: 'Kapıda Ödeme',
+  totalAmount: 'Toplam Tutar',
+  createOrder: 'Siparişi Oluştur',
+  retry: 'Tekrar Dene',
+
+  // Cart Error Messages
+  error: 'Hata',
+  warning: 'Uyarı',
+  selectTimeWarning: 'Lütfen teslimat saati seçiniz.',
+  emptyCartError: 'Sepetiniz boş. Lütfen sipariş vermeden önce ürün ekleyin.',
+  authError: 'Kullanıcı girişi yapılmamış. Lütfen tekrar giriş yapın.',
+  addressError: 'Lütfen sipariş vermeden önce geçerli bir teslimat adresi ekleyin.',
+  orderError: 'Sipariş oluşturulamadı.',
+  connectionError: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin.',
+  databaseError: 'Siparişinizi kaydederken bir sorun oluştu. Lütfen tekrar deneyin.',
+  cartError: 'Sepetinizdeki ürünlerle ilgili bir sorun oluştu. Lütfen sayfayı yenileyip tekrar deneyin.',
+  
+  // Success Messages
+  orderSuccessText: 'Sipariş Onaylandı!',
+  orderSuccessMessage: 'Siparişiniz başarıyla alındı. Siparişlerim bölümünden takip edebilirsiniz.',
+  productCount: 'Ürün Sayısı',
+  defaultTitle: 'Varsayılan',
+  defaultStreet: 'Varsayılan Sokak',
+  defaultAddress: 'Varsayılan adres',
+  authenticationError: 'Kimlik Doğrulama Hatası',
+  orderFailed: 'Sipariş Oluşturulamadı',
+  unableToCreateOrder: 'Sipariş oluşturulamadı. Lütfen tekrar deneyin.',
+  validDeliveryAddress: 'Lütfen sipariş vermeden önce geçerli bir teslimat adresi ekleyin.',
+  retryButton: 'Tekrar Dene',
+
+    // Product Card
+  addressRequired: 'Adres Gerekli',
+  addressBeforeCart: 'Ürünleri sepete eklemeden önce bir adres eklemeniz gerekmektedir. Şimdi adres eklemek ister misiniz?',
+  success: 'Başarılı',
+  addedToCart: 'sepete eklendi!'
 }
