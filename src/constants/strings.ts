@@ -187,5 +187,7 @@ export default {
   addressRequired: 'Adres Gerekli',
   addressBeforeCart: 'Ürünleri sepete eklemeden önce bir adres eklemeniz gerekmektedir. Şimdi adres eklemek ister misiniz?',
   success: 'Başarılı',
-  addedToCart: 'sepete eklendi!'
+  addedToCart: 'sepete eklendi!',
+  emptyCartTitle: 'Sepetiniz Boş',
+  emptyCartMessage: 'Alışverişe başlamak için ürün ekleyin',
 }

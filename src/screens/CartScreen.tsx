@@ -402,8 +402,13 @@ const CartScreen = ({ navigation }: any) => {
             ))}
           </View>
         ))}
-        
-        {items.length > 0 && (
+
+        {items.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyTitle}>{Strings.emptyCartTitle}</Text>
+          <Text style={styles.emptyMessage}>{Strings.emptyCartMessage}</Text>
+        </View>
+      ) : (
           <>
             <SelectedAddressCard address={getDefaultAddress()} />
             <DeliveryTimeSelector
@@ -415,6 +420,7 @@ const CartScreen = ({ navigation }: any) => {
             <PaymentMethodSelector />
           </>
         )}
+        
       </ScrollView>
       
       {items.length > 0 && (
@@ -624,6 +630,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.white,
   },
+    emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  emptyMessage: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+  }
 });
 
 export default CartScreen;
