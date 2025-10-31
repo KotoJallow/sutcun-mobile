@@ -75,13 +75,14 @@ export function useDeliverySlots(params: {
 }
 
 export function useOrders(params?: {
+  userId?: string;
   page?: number;
   limit?: number;
   status?: string;
 }) {
   return useApi(
     () => dataService.getOrders(params),
-    [params?.page, params?.limit, params?.status]
+    [params?.userId, params?.page, params?.limit, params?.status]
   );
 }
 

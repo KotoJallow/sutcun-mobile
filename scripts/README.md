@@ -51,3 +51,5 @@ npm run import-data
 - **Permission errors**: Make sure Firestore is in test mode
 - **Connection errors**: Check your Firebase config
 - **Import fails**: Check console for specific error messages
+
+

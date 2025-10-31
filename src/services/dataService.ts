@@ -377,6 +377,7 @@ class DataService {
   }
 
   async getOrders(params?: {
+    userId?: string;
     page?: number;
     limit?: number;
     status?: string;
@@ -394,7 +395,11 @@ class DataService {
         const ordersRef = collection(db, 'orders');
         let q = query(ordersRef, orderBy('createdAt', 'desc'));
 
-        // Apply filters
+        // Apply filters - IMPORTANT: Filter by userId if provided to prevent showing all users' orders
+        if (params?.userId) {
+          q = query(q, where('userId', '==', params.userId));
+        }
+        
         if (params?.status) {
           q = query(q, where('status', '==', params.status));
         }
@@ -416,6 +421,7 @@ class DataService {
           };
         }) as Order[];
 
+        console.log('📋 [DATA] Returning', orders.length, 'orders for userId:', params?.userId || 'all users');
         this.setCache(cacheKey, orders);
         return orders;
       }
