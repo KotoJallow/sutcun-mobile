@@ -1,6 +1,14 @@
 // src/redux/userSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+// Utility function to check if an address is valid (not empty)
+const isValidAddress = (address: Address): boolean => {
+  return !!(address.street?.trim() && 
+            address.buildingNo?.trim() && 
+            address.floor?.trim() && 
+            address.apartmentNo?.trim());
+};
+
 // Utility function to clean address data
 const cleanAddress = (address: any): Address => {
   // Convert Firestore Timestamp fields to ISO strings (safe for Redux)
@@ -87,6 +95,12 @@ const userSlice = createSlice({
       const cleanedAddress = cleanAddress(action.payload);
       console.log('🔄 Cleaned address:', cleanedAddress);
       
+      // Don't add empty addresses
+      if (!isValidAddress(cleanedAddress)) {
+        console.log('🔄 Address is empty, skipping');
+        return;
+      }
+      
       // Check if address already exists to prevent duplicates
       const existingAddress = state.addresses.find(addr => addr.id === cleanedAddress.id);
       if (existingAddress) {
@@ -130,13 +144,17 @@ const userSlice = createSlice({
       const cleanedAddresses = action.payload.map(cleanAddress);
       console.log('🔄 Cleaned addresses:', cleanedAddresses);
       
-      state.addresses = cleanedAddresses;
+      // Filter out empty addresses (defensive check)
+      const validAddresses = cleanedAddresses.filter(isValidAddress);
+      console.log('🔄 Filtered to', validAddresses.length, 'valid addresses');
+      
+      state.addresses = validAddresses;
       // Update default address display and addressId
-      const defaultAddr = cleanedAddresses.find(addr => addr.isDefault);
+      const defaultAddr = validAddresses.find(addr => addr.isDefault);
       if (defaultAddr) {
         state.address = `${defaultAddr.district}/${defaultAddr.neighborhood}`;
         state.addressId = defaultAddr.id;
-      } else if (cleanedAddresses.length > 0) {
+      } else if (validAddresses.length > 0) {
         // If no default set, make first one default
         state.addresses[0].isDefault = true;
         state.address = `${state.addresses[0].district}/${state.addresses[0].neighborhood}`;

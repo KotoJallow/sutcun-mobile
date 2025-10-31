@@ -458,7 +458,7 @@ class DataService {
         const snapshot = await getDocs(q);
         console.log('📍 Found', snapshot.docs.length, 'addresses in Firestore');
         
-        const addresses = snapshot.docs.map(doc => {
+        const allAddresses = snapshot.docs.map(doc => {
           const data = doc.data();
           console.log('📍 Address data:', { id: doc.id, userId: data.userId, title: data.title });
           console.log('📍 Raw address data keys:', Object.keys(data));
@@ -495,9 +495,18 @@ class DataService {
           return cleanAddress;
         }) as unknown as Address[];
 
-        console.log('📍 Returning', addresses.length, 'addresses');
-        this.setCache(cacheKey, addresses);
-        return addresses;
+        // Filter out empty addresses (addresses with empty required fields)
+        const validAddresses = allAddresses.filter(address => {
+          const isEmpty = !address.street?.trim() || 
+                         !address.buildingNo?.trim() || 
+                         !address.floor?.trim() || 
+                         !address.apartmentNo?.trim();
+          return !isEmpty;
+        });
+
+        console.log('📍 Returning', validAddresses.length, 'valid addresses (filtered from', allAddresses.length, 'total)');
+        this.setCache(cacheKey, validAddresses);
+        return validAddresses;
       }
     } catch (error) {
       console.warn('Firestore call failed, falling back to local storage:', error);

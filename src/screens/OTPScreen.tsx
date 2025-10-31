@@ -109,12 +109,6 @@ export default function OTPScreen({ route, navigation }: any) {
           // Set all orders in Redux
           dispatch(setOrders(orders));
           
-          // Ensure user has default empty address if no addresses exist
-          if (addresses.length === 0) {
-            console.log('🏠 [OTP] No addresses found, ensuring default empty address');
-            await simpleDataService.ensureDefaultEmptyAddress(userData.id);
-          }
-          
           console.log('✅ [OTP] Existing user data loaded successfully');
           return true; // User exists
         }
@@ -192,10 +186,6 @@ export default function OTPScreen({ route, navigation }: any) {
               addressId: null,
               addresses: []
             }));
-            
-            // Create default empty address for new user
-            console.log('🏠 Creating default empty address for new user');
-            await simpleDataService.ensureDefaultEmptyAddress(userDoc.id);
             
             // Show welcome message and go to main
             Alert.alert(

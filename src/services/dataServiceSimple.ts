@@ -88,7 +88,7 @@ class SimpleDataService {
       
       console.log('📍 [SIMPLE] Found', snapshot.docs.length, 'addresses');
       
-      return snapshot.docs.map(doc => {
+      const allAddresses = snapshot.docs.map(doc => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -104,6 +104,18 @@ class SimpleDataService {
           isDefault: data.isDefault || false
         };
       });
+      
+      // Filter out empty addresses (addresses with empty required fields)
+      const validAddresses = allAddresses.filter(address => {
+        const isEmpty = !address.street?.trim() || 
+                       !address.buildingNo?.trim() || 
+                       !address.floor?.trim() || 
+                       !address.apartmentNo?.trim();
+        return !isEmpty;
+      });
+      
+      console.log('📍 [SIMPLE] Filtered to', validAddresses.length, 'valid addresses');
+      return validAddresses;
       
     } catch (error) {
       console.error('❌ [SIMPLE] Failed to fetch addresses:', error);
@@ -227,42 +239,12 @@ class SimpleDataService {
   }
 
   // Ensure user has default empty address
+  // NOTE: This function is deprecated - we no longer create empty addresses
+  // Users should add their address through the AddAddress screen
   async ensureDefaultEmptyAddress(userId: string): Promise<void> {
-    console.log('🏠 [DEFAULT] Ensuring default empty address for user:', userId);
-    
-    try {
-      const addressesRef = collection(db, 'addresses');
-      const q = query(addressesRef, where('userId', '==', userId));
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        console.log('🏠 [DEFAULT] No addresses found, creating default empty address');
-        
-        const defaultAddress = {
-          title: 'Default Address(Burası Bug Yapıyor)',
-          district: 'Beylikdüzü',
-          neighborhood: 'Kavaklı',
-          street: '',
-          buildingNo: '',
-          floor: '',
-          apartmentNo: '',
-          description: 'Please update your address',
-          icon: 'home',
-          isDefault: true,
-          userId: userId,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        };
-        
-        await addDoc(addressesRef, defaultAddress);
-        console.log('✅ [DEFAULT] Default empty address created');
-      } else {
-        console.log('🏠 [DEFAULT] User already has addresses:', snapshot.docs.length);
-      }
-      
-    } catch (error) {
-      console.error('❌ [DEFAULT] Failed to ensure default address:', error);
-    }
+    console.log('🏠 [DEFAULT] Skipping empty address creation - users should add address via AddAddress screen');
+    // Do nothing - we don't want to create empty addresses
+    return;
   }
 
   // Refresh complete user data (useful for pull-to-refresh)
