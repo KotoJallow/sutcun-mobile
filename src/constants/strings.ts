@@ -14,15 +14,22 @@ export default {
   checkout: 'Ödeme Yap',
   confirm: 'Onayla',
   cancel: 'İptal',
+  continueButton: 'Devam Et',
+  retry: 'Tekrar Dene',
 
   // Messages
   welcomeMessage: "Sütçün'e Hoş Geldiniz",
   emptyCart: 'Sepetiniz boş',
   orderSuccess: 'Siparişiniz başarıyla alındı',
+  loadingProducts: 'Ürünler yükleniyor...',
+  noProductsForLocation: 'Bu konum için ürün bulunamadı',
+  tryDifferentAddress: 'Lütfen farklı bir adres seçin',
 
   // Error Messages
   errorGeneral: 'Bir hata oluştu',
   errorConnection: 'İnternet bağlantınızı kontrol edin',
+  errorAddAddressBeforeOrder: 'Sipariş vermeden önce geçerli bir teslimat adresi ekleyin.',
+  errorNoDeliveryTime: 'Geçerli bir teslimat zamanı bulunamadı.',
 
   // Placeholders
   searchPlaceholder: 'Ürün ara...',
@@ -31,6 +38,7 @@ export default {
   // Additional Translations
   freshDairy: "Taze süt ürünleri kapınızda",
   change: "Adres Değiştir",
+  allCategory: 'Tümü',
   deliverTo: "Teslimat Adresi",
   total: "Toplam",
   orderNumber: "Sipariş No",
@@ -45,6 +53,8 @@ export default {
   privacyPolicy: "Gizlilik Politikasını",
   acceptTerms: "kabul etmiş olursunuz",
   enterValidPhone: "Lütfen geçerli bir telefon numarası girin",
+  registerRequired: "Kayıt bulunamadı. Lütfen önce kayıt olun.",
+  goToRegister: "Kayıt Sayfasına Git",
 
   // Register Screen
   register: "Kayıt Ol",
@@ -130,6 +140,14 @@ export default {
   errorLoadingOrder: 'Sipariş yüklenirken hata oluştu',
   noItems: 'Ürün yok',
   errorLoadingItems: 'Ürünler yüklenirken hata oluştu',
+  orderStatusPending: 'Beklemede',
+  orderStatusConfirmed: 'Onaylandı',
+  orderStatusPreparing: 'Hazırlanıyor',
+  orderStatusOutForDelivery: 'Yolda',
+  orderStatusDelivered: 'Teslim Edildi',
+  orderStatusCancelled: 'İptal Edildi',
+  noUpcomingOrders: 'Aktif teslimat bulunamadı',
+  ordersFilteredByTime: 'Teslimat zamanı geçmiş siparişler listeden çıkarıldı.',
 
   // OTP Screen
   otpTitle: '6 haneli kodu giriniz',
@@ -152,11 +170,11 @@ export default {
   itemCount: 'ürün',
   deliveryAddress: 'Teslimat Adresi',
   deliveryTime: 'Teslimat Saati',
+  selectDeliveryTime: 'Teslimat Saati Seç',
   payment: 'Ödeme',
   cashOnDelivery: 'Kapıda Ödeme',
   totalAmount: 'Toplam Tutar',
   createOrder: 'Siparişi Oluştur',
-  retry: 'Tekrar Dene',
 
   // Cart Error Messages
   error: 'Hata',
@@ -182,6 +200,12 @@ export default {
   unableToCreateOrder: 'Sipariş oluşturulamadı. Lütfen tekrar deneyin.',
   validDeliveryAddress: 'Lütfen sipariş vermeden önce geçerli bir teslimat adresi ekleyin.',
   retryButton: 'Tekrar Dene',
+  cartResetTitle: 'Sepet Temizlenecek',
+  cartResetMessage: 'Varsayılan adres değiştirildiğinde sepetinizdeki ürünler temizlenecektir. Devam etmek istiyor musunuz?',
+  continueAnyway: 'Devam Et',
+  loadingDeliverySlots: 'Teslimat saatleri yükleniyor...',
+  noDeliverySlots: 'Uygun teslimat saati bulunmuyor',
+  noDeliverySlotsSubtext: 'Tüm teslimat saatlerinin süresi doldu veya uygunsuz.',
 
     // Product Card
   addressRequired: 'Adres Gerekli',

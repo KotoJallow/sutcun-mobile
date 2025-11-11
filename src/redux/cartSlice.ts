@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Product } from '../constants/dummyData';
+import { setDefaultAddress, logout } from './userSlice';
 
 export interface CartItem {
   product: Product;
@@ -89,6 +90,18 @@ const cartSlice = createSlice({
       state.total = 0;
       state.groupedItems = {};
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(setDefaultAddress, (state) => {
+      state.items = [];
+      state.total = 0;
+      state.groupedItems = {};
+    });
+    builder.addCase(logout, (state) => {
+      state.items = [];
+      state.total = 0;
+      state.groupedItems = {};
+    });
   },
 });
 

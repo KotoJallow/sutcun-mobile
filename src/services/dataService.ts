@@ -75,6 +75,139 @@ class DataService {
     }
 
     try {
+      const normalizeString = (value: any): string => {
+        if (typeof value === 'string') {
+          return value;
+        }
+        if (value === null || value === undefined) {
+          return '';
+        }
+        if (typeof value === 'number') {
+          return value.toString();
+        }
+        if (typeof value === 'object') {
+          if (typeof value.name === 'string') {
+            return value.name;
+          }
+          if (typeof value.label === 'string') {
+            return value.label;
+          }
+        }
+        return String(value);
+      };
+
+      const hashStringToNumber = (input: string): number => {
+        let hash = 0;
+        for (let i = 0; i < input.length; i += 1) {
+          hash = (hash << 5) - hash + input.charCodeAt(i);
+          hash |= 0; // Convert to 32bit integer
+        }
+        return Math.abs(hash);
+      };
+
+      const resolveNumericId = (value: any, fallback: string): number => {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+          return value;
+        }
+        if (typeof value === 'string') {
+          const parsed = Number(value);
+          if (!Number.isNaN(parsed)) {
+            return parsed;
+          }
+        }
+        if (value && typeof value === 'object' && 'id' in value) {
+          return resolveNumericId((value as any).id, fallback);
+        }
+        return hashStringToNumber(fallback);
+      };
+
+      const matchesLocation = (product: any, district?: string, neighborhood?: string) => {
+        if (!district || !neighborhood) {
+          return true;
+        }
+
+        const productDistrict = normalizeString(
+          product.district_name ??
+          product.district ??
+          product.districtName ??
+          product.location?.district
+        ).toLowerCase();
+
+        const productNeighborhood = normalizeString(
+          product.neighborhood_name ??
+          product.neighborhood ??
+          product.neighborhoodName ??
+          product.location?.neighborhood
+        ).toLowerCase();
+
+        return (
+          productDistrict === district.toLowerCase() &&
+          productNeighborhood === neighborhood.toLowerCase()
+        );
+      };
+
+      const normalizeProduct = (rawProduct: any, docId: string) => {
+        const productId = resolveNumericId(
+          rawProduct.product_id ??
+          rawProduct.productId ??
+          rawProduct.id,
+          docId
+        );
+
+        const categoryId = resolveNumericId(
+          rawProduct.category_id ??
+          rawProduct.categoryId ??
+          rawProduct.category?.id,
+          `${docId}-category`
+        );
+
+        const priceValue = typeof rawProduct.price === 'number'
+          ? rawProduct.price
+          : parseFloat(rawProduct.price ?? '0') || 0;
+
+        const stockValue = typeof rawProduct.stock_quantity === 'number'
+          ? rawProduct.stock_quantity
+          : parseInt(rawProduct.stock_quantity ?? rawProduct.stockQuantity ?? '0', 10) || 0;
+
+        return {
+          ...rawProduct,
+          product_id: productId,
+          product_name: rawProduct.product_name ?? rawProduct.name ?? rawProduct.title ?? '',
+          category_id: categoryId,
+          category_name: normalizeString(
+            rawProduct.category_name ??
+            rawProduct.categoryName ??
+            rawProduct.category?.name
+          ),
+          category_icon: normalizeString(
+            rawProduct.category_icon ??
+            rawProduct.categoryIcon ??
+            rawProduct.category?.icon ??
+            'grid'
+          ),
+          district_name: normalizeString(
+            rawProduct.district_name ??
+            rawProduct.district ??
+            rawProduct.districtName ??
+            rawProduct.location?.district
+          ),
+          neighborhood_name: normalizeString(
+            rawProduct.neighborhood_name ??
+            rawProduct.neighborhood ??
+            rawProduct.neighborhoodName ??
+            rawProduct.location?.neighborhood
+          ),
+          unit: normalizeString(
+            rawProduct.unit ??
+            rawProduct.unitName ??
+            rawProduct.quantityUnit
+          ),
+          price: priceValue,
+          stock_quantity: stockValue,
+          image: rawProduct.image ?? rawProduct.imageUrl ?? rawProduct.photo ?? '',
+        };
+      };
+
       if (this.isOnline && CONFIG.USE_API) {
         // Use Firestore instead of API
         const productsRef = collection(db, 'products');
@@ -97,20 +230,18 @@ class DataService {
         }
 
         const snapshot = await getDocs(q);
-        const products = snapshot.docs.map(doc => {
+        const normalizedProducts = snapshot.docs.map(doc => {
           const data = doc.data();
           const { createdAt, updatedAt, ...productData } = data;
-          return {
-            ...productData,
-            product_id: productData.product_id || parseInt(doc.id),
-            /*/ Ensure no timestamp fields are included
-            createdAt: undefined,
-            updatedAt: undefined, */
-          };
+          return normalizeProduct(productData, doc.id);
         }) as unknown as Product[];
 
-        this.setCache(cacheKey, products);
-        return products;
+        const filteredProducts = normalizedProducts.filter(product =>
+          matchesLocation(product, params?.district, params?.neighborhood)
+        );
+
+        this.setCache(cacheKey, filteredProducts);
+        return filteredProducts;
       }
     } catch (error) {
       console.warn('Firestore call failed, falling back to dummy data:', error);
@@ -118,11 +249,24 @@ class DataService {
 
     // Fallback to dummy data
     if (params?.district && params?.neighborhood) {
-      return getProductsByLocation(params.district, params.neighborhood);
+      return getProductsByLocation(params.district, params.neighborhood).map(product =>
+        ({
+          ...product,
+          product_id: product.product_id,
+        })
+      );
     } else if (params?.categoryId) {
-      return getProductsByCategory(params.categoryId, params.district, params.neighborhood);
+      return getProductsByCategory(params.categoryId, params.district, params.neighborhood).map(product =>
+        ({
+          ...product,
+          product_id: product.product_id,
+        })
+      );
     } else {
-      return getDefaultProducts();
+      return getDefaultProducts().map(product => ({
+        ...product,
+        product_id: product.product_id,
+      }));
     }
   }
 
@@ -390,6 +534,154 @@ class DataService {
     }
 
     try {
+      if (!params?.userId) {
+        console.warn('⚠️ [DATA] getOrders called without userId. Preventing fetch of all orders.');
+        throw new Error('User ID is required to fetch orders.');
+      }
+
+      const ACTIVE_STATUSES = new Set(['pending', 'confirmed', 'preparing', 'out_for_delivery']);
+
+      const toLowerString = (value: any) => {
+        if (typeof value === 'string') {
+          return value.toLowerCase();
+        }
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return String(value).toLowerCase();
+      };
+
+      const parseDateValue = (value: any): Date | null => {
+        if (!value) {
+          return null;
+        }
+        if (value instanceof Date) {
+          return Number.isNaN(value.getTime()) ? null : value;
+        }
+        if (typeof value === 'object' && typeof value.toDate === 'function') {
+          try {
+            const date = value.toDate();
+            return Number.isNaN(date.getTime()) ? null : date;
+          } catch (error) {
+            console.warn('⚠️ [DATA] Failed to convert Firestore timestamp to Date:', error);
+            return null;
+          }
+        }
+        if (typeof value === 'number') {
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? null : date;
+        }
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          if (!trimmed) {
+            return null;
+          }
+          const turkishDatePattern = /^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/;
+          const match = turkishDatePattern.exec(trimmed);
+          if (match) {
+            const day = parseInt(match[1], 10);
+            const month = parseInt(match[2], 10);
+            const year = parseInt(match[3], 10);
+            if (!Number.isNaN(day) && !Number.isNaN(month) && !Number.isNaN(year)) {
+              const date = new Date(year < 100 ? 2000 + year : year, month - 1, day);
+              return Number.isNaN(date.getTime()) ? null : date;
+            }
+          }
+          const parsed = new Date(trimmed);
+          return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+        return null;
+      };
+
+      const extractStartTime = (deliveryTime: any): { hours: number; minutes: number } => {
+        const mapLabelToStart = (label?: string) => {
+          if (!label) return undefined;
+          const normalized = label.toLowerCase();
+          if (normalized.includes('sabah') || normalized.includes('morning')) return '09:00';
+          if (normalized.includes('öğleden') || normalized.includes('afternoon')) return '13:00';
+          if (normalized.includes('akşam') || normalized.includes('evening')) return '18:00';
+          if (normalized.includes('gece') || normalized.includes('night')) return '21:00';
+          return undefined;
+        };
+
+        const candidates: Array<string | undefined> = [];
+        if (deliveryTime) {
+          if (typeof deliveryTime.timeRange === 'string') candidates.push(deliveryTime.timeRange);
+          if (typeof deliveryTime.timerange === 'string') candidates.push(deliveryTime.timerange);
+          if (typeof deliveryTime.time_range === 'string') candidates.push(deliveryTime.time_range);
+          if (typeof deliveryTime.startTime === 'string') candidates.push(deliveryTime.startTime);
+          if (typeof deliveryTime.start_time === 'string') candidates.push(deliveryTime.start_time);
+          candidates.push(mapLabelToStart(deliveryTime.label));
+        }
+
+        const timeString = candidates.find(candidate => typeof candidate === 'string' && candidate.trim().length > 0);
+        if (!timeString) {
+          return { hours: 0, minutes: 0 };
+        }
+
+        const normalized = timeString.replace('–', '-').trim();
+        const parts = normalized.includes('-')
+          ? normalized.split('-').map(part => part.trim())
+          : [normalized];
+
+        const [start] = parts;
+        if (!start || !start.includes(':')) {
+          return { hours: 0, minutes: 0 };
+        }
+
+        const [hourStr, minuteStr] = start.split(':');
+        const hours = parseInt(hourStr, 10);
+        const minutes = parseInt(minuteStr ?? '0', 10);
+
+        return {
+          hours: Number.isNaN(hours) ? 0 : hours,
+          minutes: Number.isNaN(minutes) ? 0 : minutes,
+        };
+      };
+
+      const computeDeliveryDate = (orderData: any): Date | null => {
+        if (!orderData) {
+          return null;
+        }
+
+        const deliveryTime = orderData.deliveryTime || orderData.deliverySlot || orderData.slot;
+        const dateCandidates = [
+          deliveryTime?.date,
+          deliveryTime?.dateString,
+          deliveryTime?.date_string,
+          orderData.deliveryDate,
+          orderData.delivery_date,
+          orderData.date,
+          orderData.createdAt,
+          orderData.created_at,
+        ];
+
+        const dateValue = dateCandidates.reduce<Date | null>((selected, candidate) => {
+          if (selected) return selected;
+          return parseDateValue(candidate);
+        }, null);
+
+        if (!dateValue) {
+          return null;
+        }
+
+        const { hours, minutes } = extractStartTime(deliveryTime);
+        dateValue.setHours(hours, minutes, 0, 0);
+        return dateValue;
+      };
+
+      const shouldExcludeOrder = (orderData: any) => {
+        const status = toLowerString(orderData.status);
+        if (!ACTIVE_STATUSES.has(status)) {
+          return false;
+        }
+        const deliveryDate = computeDeliveryDate(orderData);
+        if (!deliveryDate) {
+          return false;
+        }
+        return deliveryDate.getTime() < Date.now();
+      };
+
       if (this.isOnline && CONFIG.USE_API) {
         // Use Firestore instead of API
         const ordersRef = collection(db, 'orders');
@@ -410,20 +702,27 @@ class DataService {
         }
 
         const snapshot = await getDocs(q);
-        const orders = snapshot.docs.map(doc => {
+        const mappedOrders = snapshot.docs
+        .map(doc => {
           const data = doc.data();
           const { createdAt, updatedAt, ...orderData } = data;
+          const normalizedCreatedAt = parseDateValue(createdAt) || new Date();
+          const normalizedUpdatedAt = parseDateValue(updatedAt) || normalizedCreatedAt;
           return {
             id: doc.id,
             ...orderData,
-            createdAt: new Date().toISOString(), // Convert to serializable string
-            updatedAt: new Date().toISOString()  // Convert to serializable string
+            createdAt: normalizedCreatedAt.toISOString(),
+            updatedAt: normalizedUpdatedAt.toISOString()
           };
         }) as Order[];
 
-        console.log('📋 [DATA] Returning', orders.length, 'orders for userId:', params?.userId || 'all users');
-        this.setCache(cacheKey, orders);
-        return orders;
+        const userOrders = mappedOrders
+          .filter(order => order.userId === params.userId)
+          .filter(order => !shouldExcludeOrder(order));
+
+        console.log('📋 [DATA] Returning', userOrders.length, 'orders for userId:', params.userId);
+        this.setCache(cacheKey, userOrders);
+        return userOrders;
       }
     } catch (error) {
       console.error('Firestore call failed:', error);

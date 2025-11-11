@@ -74,15 +74,19 @@ export function useDeliverySlots(params: {
   );
 }
 
-export function useOrders(params?: {
-  userId?: string;
+export function useOrders(params: {
+  userId: string;
   page?: number;
   limit?: number;
   status?: string;
 }) {
+  if (!params?.userId) {
+    throw new Error('useOrders requires a userId parameter.');
+  }
+
   return useApi(
     () => dataService.getOrders(params),
-    [params?.userId, params?.page, params?.limit, params?.status]
+    [params.userId, params.page, params.limit, params.status]
   );
 }
 

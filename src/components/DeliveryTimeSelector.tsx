@@ -7,6 +7,7 @@ import {
   formatDeliveryDate 
 } from '../constants/deliveryTimes';
 import LoadingSpinner from './LoadingSpinner';
+import Strings from '../constants/strings';
 
 interface DeliveryTimeSelectorProps {
   selectedTime: DeliveryTimeSlot | null;
@@ -64,7 +65,7 @@ const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Delivery Time</Text>
+      <Text style={styles.title}>{Strings.deliveryTime}</Text>
       
       <TouchableOpacity
         style={styles.selectorButton}
@@ -83,7 +84,7 @@ const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({
                 </Text>
               </>
             ) : (
-              <Text style={styles.placeholderText}>Select delivery time</Text>
+              <Text style={styles.placeholderText}>{Strings.selectDeliveryTime}</Text>
             )}
           </View>
           <Icon name="chevron-down" size={20} color="#6B7280" />
@@ -99,7 +100,7 @@ const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Delivery Time</Text>
+              <Text style={styles.modalTitle}>{Strings.selectDeliveryTime}</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
                 <Icon name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
@@ -113,12 +114,12 @@ const DeliveryTimeSelector: React.FC<DeliveryTimeSelectorProps> = ({
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={() => {
                 if (loading) {
-                  return <LoadingSpinner text="Loading delivery slots..." />;
+                  return <LoadingSpinner text={Strings.loadingDeliverySlots} />;
                 }
                 return (
                   <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>Uygun teslimat saati bulunmuyor</Text>
-                    <Text style={styles.emptySubtext}>Tüm teslimat saatleri 3 saatten az kaldı</Text>
+                    <Text style={styles.emptyText}>{Strings.noDeliverySlots}</Text>
+                    <Text style={styles.emptySubtext}>{Strings.noDeliverySlotsSubtext}</Text>
                   </View>
                 );
               }}

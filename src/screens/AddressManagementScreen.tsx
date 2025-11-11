@@ -25,15 +25,15 @@ const AddressManagementScreen = ({ navigation }: any) => {
   const handleSetDefaultAddress = (addressId: string) => {
     if (items.length > 0) {
       Alert.alert(
-        'Sepet Sıfırlanacak',
-        'Varsayılan adres değiştirildiğinde sepetinizdeki ürünler silinecektir. Devam etmek istiyor musunuz?',
+        Strings.cartResetTitle,
+        Strings.cartResetMessage,
         [
           {
-            text: 'İptal',
+            text: Strings.cancel,
             style: 'cancel'
           },
           {
-            text: 'Devam Et',
+            text: Strings.continueAnyway,
             style: 'destructive',
             onPress: () => {
               dispatch(setDefaultAddress(addressId));

@@ -31,15 +31,15 @@ const CartScreen = ({ navigation }: any) => {
   const { mutate: createOrderApi, loading: isCreatingOrder } = useCreateOrder();
   
   // Get delivery slots from Firebase
-  const defaultAddress = addresses.find(addr => addr.isDefault);
+  const defaultAddress = addresses.find(addr => addr.isDefault) || null;
   const { data: deliverySlots, loading: slotsLoading } = useDeliverySlots({
-    district: defaultAddress?.district || 'Beylikdüzü',
-    neighborhood: defaultAddress?.neighborhood || 'Kavaklı'
+    district: defaultAddress?.district || '',
+    neighborhood: defaultAddress?.neighborhood || ''
   });
 
   // Teslimat saatlerini filtrele - 3 saatten az kalanları çıkar
   const filteredDeliverySlots = useMemo(() => {
-    if (!deliverySlots) return [];
+    if (!deliverySlots || !defaultAddress) return [];
 
     const now = new Date();
     const threeHoursLater = new Date(now.getTime() + 3 * 60 * 60 * 1000);
@@ -82,38 +82,10 @@ const CartScreen = ({ navigation }: any) => {
 
   // Get default address for delivery
   const getDefaultAddress = () => {
-    if (addresses.length > 0) {
-      const defaultAddress = addresses.find(addr => addr.isDefault);
-      if (defaultAddress) {
-        return {
-      id: defaultAddress.id,
-      title: defaultAddress.title,
-      district: defaultAddress.district,
-      neighborhood: defaultAddress.neighborhood,
-      street: defaultAddress.street,
-      buildingNo: defaultAddress.buildingNo,
-      floor: defaultAddress.floor,
-      apartmentNo: defaultAddress.apartmentNo,
-      description: defaultAddress.description,
-      icon: defaultAddress.icon,
-      isDefault: defaultAddress.isDefault,
-        };
-      }
+    if (addresses.length === 0) {
+      return null;
     }
-    // Fallback address
-    return {
-    id: 'local-default',
-    title: 'Default',
-      district: 'Beylikdüzü',
-      neighborhood: 'Kavaklı',
-      street: 'Default Street',
-      buildingNo: '1',
-      floor: '1',
-      apartmentNo: '1',
-      description: 'Default address',
-    icon: '',
-    isDefault: true,
-    };
+    return addresses.find(addr => addr.isDefault) || null;
   };
 
   const handleIncrement = (productId: number) => {
@@ -146,6 +118,10 @@ const CartScreen = ({ navigation }: any) => {
     );
   };
 
+  const handleAddAddress = () => {
+    navigation.navigate('AddAddress');
+  };
+
   const handleDeliveryTimeSelect = (time: DeliveryTimeSlot) => {
     setSelectedDeliveryTime(time);
   };
@@ -153,6 +129,10 @@ const CartScreen = ({ navigation }: any) => {
   const handleCreateOrder = () => {
     if (!selectedDeliveryTime) {
       Alert.alert(Strings.warning, Strings.selectTimeWarning);
+      return;
+    }
+    if (!getDefaultAddress()) {
+      Alert.alert(Strings.error, Strings.errorAddAddressBeforeOrder);
       return;
     }
     setShowOrderConfirmModal(true);
@@ -178,8 +158,8 @@ const CartScreen = ({ navigation }: any) => {
     const deliveryAddress = getDefaultAddress();
     
     // Validate delivery address
-    if (!deliveryAddress || !deliveryAddress.id || deliveryAddress.id === 'local-default') {
-      Alert.alert('Error', 'Please add a valid delivery address before placing an order.');
+    if (!deliveryAddress || !deliveryAddress.id) {
+      Alert.alert(Strings.error, Strings.errorAddAddressBeforeOrder);
       return;
     }
 
@@ -281,9 +261,9 @@ const CartScreen = ({ navigation }: any) => {
         errorTitle,
         errorMessage,
         [
-          { text: 'OK' },
+          { text: Strings.ok },
           { 
-            text: 'Retry', 
+            text: Strings.retryButton, 
             onPress: () => {
               // Allow user to retry the order
               handleConfirmOrder();
@@ -297,6 +277,10 @@ const CartScreen = ({ navigation }: any) => {
   const OrderConfirmModal = () => {
     // Toplam ürün sayısını hesapla (her ürünün miktarını topla)
     const totalItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+    if (!deliveryAddress) {
+      return null;
+    }
+
     return (
       <Modal
         visible={showOrderConfirmModal}
@@ -309,31 +293,31 @@ const CartScreen = ({ navigation }: any) => {
               <View style={styles.modalIconContainer}>
                 <Icon name="check-circle" size={60} color={Colors.primary} />
               </View>
-              <Text style={styles.modalTitle}>Siparişi Onayla</Text>
+              <Text style={styles.modalTitle}>{Strings.orderConfirm}</Text>
               <Text style={styles.modalSubtitle}>
-                Sipariş detaylarını kontrol edin
+                {Strings.checkOrderDetails}
               </Text>
             </View>
 
             <View style={styles.orderSummary}>
               <View style={styles.summaryRow}>
                 <Icon name="package-variant" size={20} color="#6b7280" />
-                <Text style={styles.summaryLabel}>Ürün Sayısı</Text>
-                <Text style={styles.summaryValue}>{totalItemCount} ürün</Text>
+                <Text style={styles.summaryLabel}>{Strings.productCount}</Text>
+                <Text style={styles.summaryValue}>{`${totalItemCount} ${Strings.itemCount}`}</Text>
               </View>
               
               <View style={styles.summaryRow}>
                 <Icon name="map-marker" size={20} color="#6b7280" />
-                <Text style={styles.summaryLabel}>Teslimat Adresi</Text>
+                <Text style={styles.summaryLabel}>{Strings.deliveryAddress}</Text>
                 <Text style={styles.summaryValue} numberOfLines={1}>
-                  {getDefaultAddress().neighborhood}
+                  {deliveryAddress.neighborhood}
                 </Text>
               </View>
               
               {selectedDeliveryTime && (
                 <View style={styles.summaryRow}>
                   <Icon name="clock-outline" size={20} color="#6b7280" />
-                  <Text style={styles.summaryLabel}>Teslimat Saati</Text>
+                  <Text style={styles.summaryLabel}>{Strings.deliveryTime}</Text>
                   <Text style={styles.summaryValue}>
                     {selectedDeliveryTime.date} - {selectedDeliveryTime.label} {selectedDeliveryTime.timeRange}
                   </Text>
@@ -342,12 +326,12 @@ const CartScreen = ({ navigation }: any) => {
               
               <View style={styles.summaryRow}>
                 <Icon name="credit-card" size={20} color="#6b7280" />
-                <Text style={styles.summaryLabel}>Ödeme</Text>
-                <Text style={styles.summaryValue}>Kapıda Ödeme</Text>
+                <Text style={styles.summaryLabel}>{Strings.payment}</Text>
+                <Text style={styles.summaryValue}>{Strings.cashOnDelivery}</Text>
               </View>
               
               <View style={[styles.summaryRow, styles.totalRow]}>
-                <Text style={styles.totalLabel}>Toplam Tutar</Text>
+                <Text style={styles.totalLabel}>{Strings.totalAmount}</Text>
                 <Text style={styles.totalValue}>{total.toFixed(2)} TL</Text>
               </View>
             </View>
@@ -357,7 +341,7 @@ const CartScreen = ({ navigation }: any) => {
                 style={styles.cancelButton}
                 onPress={() => setShowOrderConfirmModal(false)}
               >
-                <Text style={styles.cancelButtonText}>İptal</Text>
+                <Text style={styles.cancelButtonText}>{Strings.cancel}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -368,7 +352,7 @@ const CartScreen = ({ navigation }: any) => {
                 {isCreatingOrder ? (
                   <LoadingSpinner size="small" color="#fff" />
                 ) : (
-                  <Text style={styles.confirmButtonText}>Siparişi Onayla</Text>
+                  <Text style={styles.confirmButtonText}>{Strings.orderConfirm}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -410,14 +394,26 @@ const CartScreen = ({ navigation }: any) => {
         </View>
       ) : (
           <>
-            <SelectedAddressCard address={getDefaultAddress()} />
-            <DeliveryTimeSelector
-              selectedTime={selectedDeliveryTime}
-              onTimeSelect={handleDeliveryTimeSelect}
-              deliverySlots={filteredDeliverySlots}
-              loading={slotsLoading}
-            />
-            <PaymentMethodSelector />
+            {getDefaultAddress() ? (
+              <>
+                <SelectedAddressCard address={getDefaultAddress()!} />
+                <DeliveryTimeSelector
+                  selectedTime={selectedDeliveryTime}
+                  onTimeSelect={handleDeliveryTimeSelect}
+                  deliverySlots={filteredDeliverySlots}
+                  loading={slotsLoading}
+                />
+                <PaymentMethodSelector />
+              </>
+            ) : (
+              <View style={styles.addressWarning}>
+                <Text style={styles.addressWarningTitle}>{Strings.addressRequired}</Text>
+                <Text style={styles.addressWarningMessage}>{Strings.addressBeforeCart}</Text>
+                <TouchableOpacity style={styles.addressWarningButton} onPress={handleAddAddress}>
+                  <Text style={styles.addressWarningButtonText}>{Strings.addAddress}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </>
         )}
         
@@ -452,7 +448,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    marginTop: 16,
+    paddingTop: 16,
   },
   categorySection: {
     marginBottom: 10,
@@ -646,7 +642,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6B7280',
     textAlign: 'center',
-  }
+  },
+  addressWarning: {
+    marginHorizontal: 16,
+    marginVertical: 12,
+    padding: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#fde68a',
+    backgroundColor: '#fef3c7',
+    alignItems: 'center',
+    gap: 12,
+  },
+  addressWarningTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#92400e',
+  },
+  addressWarningMessage: {
+    fontSize: 14,
+    color: '#92400e',
+    textAlign: 'center',
+  },
+  addressWarningButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  addressWarningButtonText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });
 
 export default CartScreen;

@@ -48,7 +48,9 @@ class SimpleDataService {
           floor: orderData.deliveryAddress.floor,
           apartmentNo: orderData.deliveryAddress.apartmentNo
         },
-        deliveryTime: orderData.deliveryTime.label,
+        deliveryTime: {
+          ...orderData.deliveryTime,
+        },
         paymentMethod: orderData.paymentMethod,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -127,6 +129,149 @@ class SimpleDataService {
     console.log('📋 [SIMPLE] Fetching orders for userId:', userId);
     
     try {
+      const ACTIVE_STATUSES = new Set(['pending', 'confirmed', 'preparing', 'out_for_delivery']);
+
+      const toLowerString = (value: any) => {
+        if (typeof value === 'string') {
+          return value.toLowerCase();
+        }
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return String(value).toLowerCase();
+      };
+
+      const parseDateValue = (value: any): Date | null => {
+        if (!value) {
+          return null;
+        }
+        if (value instanceof Date) {
+          return Number.isNaN(value.getTime()) ? null : value;
+        }
+        if (typeof value === 'object' && typeof value.toDate === 'function') {
+          try {
+            const date = value.toDate();
+            return Number.isNaN(date.getTime()) ? null : date;
+          } catch (error) {
+            console.warn('⚠️ [SIMPLE] Failed to convert Firestore timestamp to Date:', error);
+            return null;
+          }
+        }
+        if (typeof value === 'number') {
+          const date = new Date(value);
+          return Number.isNaN(date.getTime()) ? null : date;
+        }
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          if (!trimmed) {
+            return null;
+          }
+          const turkishDatePattern = /^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/;
+          const match = turkishDatePattern.exec(trimmed);
+          if (match) {
+            const day = parseInt(match[1], 10);
+            const month = parseInt(match[2], 10);
+            const year = parseInt(match[3], 10);
+            if (!Number.isNaN(day) && !Number.isNaN(month) && !Number.isNaN(year)) {
+              const date = new Date(year < 100 ? 2000 + year : year, month - 1, day);
+              return Number.isNaN(date.getTime()) ? null : date;
+            }
+          }
+          const parsed = new Date(trimmed);
+          return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+        return null;
+      };
+
+      const extractStartTime = (deliveryTime: any): { hours: number; minutes: number } => {
+        const mapLabelToStart = (label?: string) => {
+          if (!label) return undefined;
+          const normalized = label.toLowerCase();
+          if (normalized.includes('sabah') || normalized.includes('morning')) return '09:00';
+          if (normalized.includes('öğleden') || normalized.includes('afternoon')) return '13:00';
+          if (normalized.includes('akşam') || normalized.includes('evening')) return '18:00';
+          if (normalized.includes('gece') || normalized.includes('night')) return '21:00';
+          return undefined;
+        };
+
+        const candidates: Array<string | undefined> = [];
+        if (deliveryTime) {
+          if (typeof deliveryTime.timeRange === 'string') candidates.push(deliveryTime.timeRange);
+          if (typeof deliveryTime.timerange === 'string') candidates.push(deliveryTime.timerange);
+          if (typeof deliveryTime.time_range === 'string') candidates.push(deliveryTime.time_range);
+          if (typeof deliveryTime.startTime === 'string') candidates.push(deliveryTime.startTime);
+          if (typeof deliveryTime.start_time === 'string') candidates.push(deliveryTime.start_time);
+          candidates.push(mapLabelToStart(deliveryTime.label));
+        }
+
+        const timeString = candidates.find(candidate => typeof candidate === 'string' && candidate.trim().length > 0);
+        if (!timeString) {
+          return { hours: 0, minutes: 0 };
+        }
+
+        const normalized = timeString.replace('–', '-').trim();
+        const parts = normalized.includes('-')
+          ? normalized.split('-').map(part => part.trim())
+          : [normalized];
+
+        const [start] = parts;
+        if (!start || !start.includes(':')) {
+          return { hours: 0, minutes: 0 };
+        }
+
+        const [hourStr, minuteStr] = start.split(':');
+        const hours = parseInt(hourStr, 10);
+        const minutes = parseInt(minuteStr ?? '0', 10);
+
+        return {
+          hours: Number.isNaN(hours) ? 0 : hours,
+          minutes: Number.isNaN(minutes) ? 0 : minutes,
+        };
+      };
+
+      const computeDeliveryDate = (orderData: any): Date | null => {
+        if (!orderData) {
+          return null;
+        }
+
+        const deliveryTime = orderData.deliveryTime || orderData.deliverySlot || orderData.slot;
+        const dateCandidates = [
+          deliveryTime?.date,
+          deliveryTime?.dateString,
+          deliveryTime?.date_string,
+          orderData.deliveryDate,
+          orderData.delivery_date,
+          orderData.date,
+          orderData.createdAt,
+          orderData.created_at,
+        ];
+
+        const dateValue = dateCandidates.reduce<Date | null>((selected, candidate) => {
+          if (selected) return selected;
+          return parseDateValue(candidate);
+        }, null);
+
+        if (!dateValue) {
+          return null;
+        }
+
+        const { hours, minutes } = extractStartTime(deliveryTime);
+        dateValue.setHours(hours, minutes, 0, 0);
+        return dateValue;
+      };
+
+      const shouldExcludeOrder = (orderData: any) => {
+        const status = toLowerString(orderData.status);
+        if (!ACTIVE_STATUSES.has(status)) {
+          return false;
+        }
+        const deliveryDate = computeDeliveryDate(orderData);
+        if (!deliveryDate) {
+          return false;
+        }
+        return deliveryDate.getTime() < Date.now();
+      };
+
       const ordersRef = collection(db, 'orders');
       // Filter orders by userId
       const q = query(ordersRef, where('userId', '==', userId));
@@ -134,23 +279,55 @@ class SimpleDataService {
       
       console.log('📋 [SIMPLE] Found', snapshot.docs.length, 'orders for user:', userId);
       
-      return snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          orderNumber: data.orderNumber || '',
-          date: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-          status: data.status || 'pending',
-          userId: data.userId || userId, // Include userId
-          items: data.items || [],
-          total: data.total || 0,
-          deliveryAddress: data.deliveryAddress || {},
-          deliveryTime: data.deliveryTime || {},
-          paymentMethod: data.paymentMethod || 'cash_on_delivery',
-          createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
-        };
-      });
+      return snapshot.docs
+        .map(doc => {
+          const data = doc.data();
+          const deliveryTimeData = data.deliveryTime;
+          const deliveryTime = typeof deliveryTimeData === 'object' && deliveryTimeData !== null
+            ? deliveryTimeData
+            : {
+                date: data.deliveryDate || data.date || null,
+                timeRange: data.deliveryTimeRange || null,
+                label: typeof deliveryTimeData === 'string' ? deliveryTimeData : null,
+              };
+
+          const items = Array.isArray(data.items) ? data.items.map((item: any) => {
+            const quantity = item.quantity || item.qty || item.count || 1;
+            const productName = item.productName || item.product_name || item.name || '';
+            const product = item.product || {
+              product_id: item.productId || null,
+              product_name: productName,
+              price: item.price,
+              category_id: item.categoryId || item.category_id,
+              category_name: item.categoryName || item.category_name,
+            };
+
+            return {
+              product,
+              quantity,
+            };
+          }) : [];
+
+          const createdAtDate = parseDateValue(data.createdAt) || new Date();
+          const updatedAtDate = parseDateValue(data.updatedAt) || createdAtDate;
+
+          return {
+            id: doc.id,
+            orderNumber: data.orderNumber || '',
+            date: createdAtDate.toISOString(),
+            status: data.status || 'pending',
+            userId: data.userId || userId, // Include userId
+            items,
+            total: data.total || 0,
+            deliveryAddress: data.deliveryAddress || {},
+            deliveryTime,
+            paymentMethod: data.paymentMethod || 'cash_on_delivery',
+            createdAt: createdAtDate.toISOString(),
+            updatedAt: updatedAtDate.toISOString()
+          };
+        })
+        .filter(order => order.userId === userId)
+        .filter(order => !shouldExcludeOrder(order));
       
     } catch (error) {
       console.error('❌ [SIMPLE] Failed to fetch orders:', error);

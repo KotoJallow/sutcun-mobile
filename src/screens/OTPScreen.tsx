@@ -58,7 +58,7 @@ export default function OTPScreen({ route, navigation }: any) {
       );
       setVerificationId(id);
     } catch (err: any) {
-      Alert.alert("Error", err.message);
+      Alert.alert(Strings.error, err.message);
     } finally {
       setIsLoading(false);
     }
@@ -199,9 +199,16 @@ export default function OTPScreen({ route, navigation }: any) {
             navigation.replace("Main");
           }
         } else {
-          // This shouldn't happen, but handle gracefully
           console.log('⚠️ User not found but not marked as registration');
-          navigation.replace("Main");
+          Alert.alert(
+            Strings.errorUserNotFound,
+            Strings.registerRequired,
+            [
+              { text: Strings.cancel, style: 'cancel' },
+              { text: Strings.goToRegister, onPress: () => navigation.replace('Register') }
+            ]
+          );
+          return;
         }
       }
     } catch (err: any) {

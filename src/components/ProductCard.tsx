@@ -21,6 +21,29 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigation: any = useNavigation();
   const { addresses } = useSelector((state: RootState) => state.user);
 
+  const productName =
+    product.product_name ||
+    (typeof (product as any).name === 'string' ? (product as any).name : '') ||
+    (product as any).title ||
+    '';
+
+  const unit =
+    product.unit ||
+    (product as any).unitName ||
+    (product as any).quantityUnit ||
+    '';
+
+  const price =
+    typeof product.price === 'number'
+      ? product.price
+      : parseFloat(String((product as any).price ?? 0)) || 0;
+
+  const imageUri =
+    product.image ||
+    (product as any).imageUrl ||
+    (product as any).photo ||
+    'https://via.placeholder.com/150';
+
   const handleAddToCart = () => {
     // Check if user has any saved addresses
     if (addresses.length === 0) {
@@ -42,15 +65,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     dispatch(addToCart(product));
     
     // Show success message
-    Alert.alert(Strings.success, `${product.product_name} ${Strings.addedToCart}`);
+    Alert.alert(Strings.success, `${productName} ${Strings.addedToCart}`);
   };
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: product.image }} style={styles.image} />
-      <Text style={styles.name}>{product.product_name}</Text>
-      <Text style={styles.unit}>{product.unit}</Text>
-      <Text style={styles.price}>{product.price.toFixed(2)} TL</Text>
+      <Image source={{ uri: imageUri }} style={styles.image} />
+      <Text style={styles.name}>{productName}</Text>
+      <Text style={styles.unit}>{unit}</Text>
+      <Text style={styles.price}>{price.toFixed(2)} TL</Text>
       <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
         <Text style={styles.plus}>+</Text>
       </TouchableOpacity>

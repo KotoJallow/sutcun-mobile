@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 interface ErrorMessageProps {
   message: string;
@@ -12,7 +13,7 @@ interface ErrorMessageProps {
 const ErrorMessage: React.FC<ErrorMessageProps> = ({ 
   message, 
   onRetry, 
-  retryText = 'Try Again' 
+  retryText = Strings.retryButton 
 }) => {
   return (
     <View style={styles.container}>

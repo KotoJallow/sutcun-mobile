@@ -8,19 +8,64 @@ import {
   KeyboardAvoidingView,
   Platform,
   Linking,
+  Alert,
 } from "react-native";
 import colors from "../constants/colors";
 import CustomToolbar from "../components/CustomToolbar";
 import Strings from '../constants/strings';
+import { db } from "../firebase/firebaseConfig";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const LoginScreen = ({ navigation }: any) => {
   const [phone, setPhone] = useState("");
+  const [isCheckingUser, setIsCheckingUser] = useState(false);
 
   // Phone input handler to remove +90 if user tries to enter it
   const handlePhoneChange = (text: string) => {
     // Remove any non-numeric characters
     const numericOnly = text.replace(/[^0-9]/g, '');
     setPhone(numericOnly);
+  };
+
+  const handleContinue = async () => {
+    const trimmedPhone = phone.trim();
+
+    if (!trimmedPhone) {
+      Alert.alert(Strings.error, Strings.enterValidPhone);
+      return;
+    }
+
+    const fullPhoneNumber = `+90${trimmedPhone}`;
+
+    try {
+      setIsCheckingUser(true);
+
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("phone", "==", fullPhoneNumber));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        Alert.alert(
+          Strings.error,
+          Strings.registerRequired,
+          [
+            { text: Strings.cancel, style: "cancel" },
+            {
+              text: Strings.goToRegister,
+              onPress: () => navigation.replace("Register"),
+            },
+          ]
+        );
+        return;
+      }
+
+      navigation.navigate("OTP", { phone: fullPhoneNumber, isRegistration: false });
+    } catch (error) {
+      console.error("Error checking user registration:", error);
+      Alert.alert(Strings.error, Strings.errorConnection);
+    } finally {
+      setIsCheckingUser(false);
+    }
   };
 
   const handleTermsPress = () => {
@@ -77,17 +122,12 @@ const LoginScreen = ({ navigation }: any) => {
         {/* Continue Button */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
-            if (phone.trim()) {
-              // phone numarasının başına +90 ekleyerek gönder
-              const fullPhoneNumber = `+90${phone}`;
-              navigation.navigate("OTP", { phone: fullPhoneNumber });
-            } else {
-              alert(Strings.enterValidPhone);
-            }
-          }}
+          onPress={handleContinue}
+          disabled={isCheckingUser}
         >
-          <Text style={styles.buttonText}>{Strings.continue}</Text>
+          <Text style={styles.buttonText}>
+            {isCheckingUser ? Strings.sendingCode : Strings.continue}
+          </Text>
         </TouchableOpacity>
 
         {/* Info Note */}

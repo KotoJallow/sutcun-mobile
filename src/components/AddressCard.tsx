@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 interface AddressCardProps {
   title: string;
@@ -19,7 +20,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ title, address, onOptionsPres
           <Text style={styles.title}>{title}</Text>
           {isDefault && (
             <View style={styles.defaultBadge}>
-              <Text style={styles.defaultText}>Default</Text>
+              <Text style={styles.defaultText}>{Strings.defaultTitle}</Text>
             </View>
           )}
         </View>

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../constants/colors';
+import Strings from '../constants/strings';
 
 interface Address {
   title: string;
@@ -18,13 +19,29 @@ interface SelectedAddressCardProps {
   address: Address;
 }
 
+const isValidAddress = (address: Address) => {
+  return Boolean(
+    address &&
+    address.district?.trim() &&
+    address.neighborhood?.trim() &&
+    address.street?.trim() &&
+    address.buildingNo?.trim() &&
+    address.floor?.trim() &&
+    address.apartmentNo?.trim()
+  );
+};
+
 const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address }) => {
+  if (!isValidAddress(address)) {
+    return null;
+  }
+
   return (
     <View style={styles.addressCard}>
       <View style={styles.addressHeader}>
         <View style={styles.addressTitleContainer}>
           <Icon name="map-marker" size={20} color={Colors.primary} />
-          <Text style={styles.addressTitle}>Teslimat Adresi</Text>
+          <Text style={styles.addressTitle}>{Strings.deliveryAddress}</Text>
         </View>
         <View style={styles.addressTypeTag}>
           <Text style={styles.addressTypeText}>{address.title}</Text>

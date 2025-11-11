@@ -52,14 +52,17 @@ export default function AccountScreen({ navigation }: any) {
     if (name && surname) {
       return `${name} ${surname}`;
     }
-    return name || 'User';
+    return name || Strings.defaultUserName;
   };
 
   const getUserInitials = () => {
     if (name && surname) {
       return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase();
     }
-    return name ? name.charAt(0).toUpperCase() : 'U';
+    if (name) {
+      return name.charAt(0).toUpperCase();
+    }
+    return Strings.defaultUserName.charAt(0).toUpperCase();
   };
 
   const menuItems = [
